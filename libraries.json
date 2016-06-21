@@ -1,0 +1,26 @@
+[
+{
+    "name": "catch",
+    "source": {
+        "type": "git",
+        "url": "https://github.com/philsquared/Catch.git",
+        "revision": "V1.5.0"
+    }
+},
+{
+    "name": "eigen",
+    "source": {
+        "type": "hg",
+        "url": "https://bitbucket.org/eigen/eigen/",
+        "revision": " 206929d"
+    }
+},
+{
+    "name": "zlib",
+    "source": {
+        "type": "archive",
+        "url": "http://zlib.net/zlib-1.2.8.tar.gz",
+        "sha1": "a4d316c404ff54ca545ea71a27af7dbc29817088"
+    }
+}
+]
