@@ -62,6 +62,8 @@ def _compute_sha1_hash(filename):
 
 # http://stackoverflow.com/a/32234251
 def is_sha1(maybe_sha):
+    if not maybe_sha:
+        return False
     if len(maybe_sha) != 40:
         return False
     try:
