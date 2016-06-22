@@ -33,8 +33,9 @@ def bootstrap_library(json_obj, name, library_dir):
 
     if src_type == "archive":
         sha1_hash = src.get('sha1', None)
+        user_agent = src.get('user-agent', None)
 
-        if not eos.util.download_file(src_url, eos.cache.get_archive_dir(), sha1_hash):
+        if not eos.util.download_file(src_url, eos.cache.get_archive_dir(), sha1_hash, user_agent):
             eos.log_error("downloading of file for '" + name + "' from " + src_url + " failed")
             return False
 

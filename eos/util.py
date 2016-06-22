@@ -5,11 +5,13 @@ try:
     from urllib.request import urlparse
     from urllib.request import urlunparse
     from urllib.request import urlretrieve
+    from urllib.request import URLopener
     from urllib.request import quote
 except ImportError:
     from urlparse import urlparse
     from urlparse import urlunparse
     from urllib import urlretrieve
+    from urllib import URLopener
     from urllib import quote
 
 import eos.log
@@ -37,7 +39,11 @@ def compute_sha1_hash(filename):
     return sha1.hexdigest()
 
 
-def download_file(url, dst_dir, sha1_hash_expected=None):
+class MyURLOpener(URLopener):
+    pass
+
+
+def download_file(url, dst_dir, sha1_hash_expected=None, user_agent=None):
     assert(os.path.isdir(dst_dir))
 
     # sanitize the URL before calling urlretrieve() below
@@ -62,7 +68,11 @@ def download_file(url, dst_dir, sha1_hash_expected=None):
 
     # download file
     eos.log_verbose("Downloading " + url + " to " + download_filename)
-    urlretrieve(url, download_filename)
+    if user_agent:
+        MyURLOpener.version = user_agent
+        MyURLOpener().retrieve(url, download_filename)
+    else:
+        urlretrieve(url, download_filename)
 
     # check SHA1 hash
     if sha1_hash_expected and sha1_hash_expected != "":
