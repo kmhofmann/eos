@@ -5,23 +5,10 @@ import os
 import sys
 
 import eos
+import eos.cache
 import eos.cargs
 import eos.json
-
-
-def bootstrap_library(json_obj, name, library_dir, cache_dir):
-    eos.log_verbose("BOOTSTRAPPING LIBRARY '" + name + "' TO " + library_dir)
-
-    # create directory for library
-    if not os.path.exists(library_dir):
-        os.mkdir(library_dir)
-
-    src = json_obj.get('source', None)
-
-    if src:
-        pass
-
-    return False
+import eos.state
 
 
 def main(argv):
@@ -62,10 +49,9 @@ def main(argv):
         eos.log_error("could not create destination directory " + dst_dir)
         return -1
 
-    # create cache directory, if it doesn't exist yet
+    # initialize cache directory
     cache_dir = os.path.join(dst_dir, ".cache")
-    if not os.path.isdir(cache_dir):
-        os.mkdir(cache_dir)
+    eos.cache.init_cache_dir(cache_dir)
 
     # read cached state (if present)
     state_filename = os.path.join(dst_dir, ".state.json")
@@ -85,22 +71,14 @@ def main(argv):
         library_dir = os.path.join(dst_dir, name)
 
         # check against state
-        state_equal = False
-        if json_data_state:
-            for state_obj in json_data_state:
-                state_name = state_obj.get('name', None)
-                if state_name and state_name == name and state_obj == obj and os.path.exists(library_dir):
-                    state_equal = True
-                    break
-        if state_equal:
+        if eos.state.check_equals(json_data_state, name, obj) and os.path.exists(library_dir):
             eos.log_verbose("Cached state for library '" + name + "' matches; skipping bootstrapping")
             continue
 
         # remove cached state for library
-        if json_data_state:
-            json_data_state[:] = [state for state in json_data_state if not state.get('name', None) == name]
+        eos.state.remove_library(json_data_state, name)
 
-        if bootstrap_library(obj, name, library_dir, cache_dir):
+        if eos.bootstrap_library(obj, name, library_dir):
             libraries_bootstrapped += 1
 
             # add cached state again

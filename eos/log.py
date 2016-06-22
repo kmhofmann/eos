@@ -8,6 +8,10 @@ def set_verbose(verbose):
     VERBOSE = verbose
 
 
+def is_verbose():
+    return VERBOSE
+
+
 def log(message):
     print("--- " + message)
 
