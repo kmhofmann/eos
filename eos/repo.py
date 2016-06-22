@@ -28,14 +28,14 @@ def _execute_and_capture_output(command):
 # -----
 
 
-def hg_repo_exists(dir):
-    # TODO: more robust check
-    return os.path.exists(os.path.join(dir, ".hg"))
+def hg_repo_exists(directory):
+    # Is a more robust check possible? https://trac.sagemath.org/ticket/12128 says no.
+    return os.path.exists(os.path.join(directory, ".hg"))
 
 
-def git_repo_exists(dir):
-    # TODO: more robust check
-    return os.path.exists(os.path.join(dir, ".git"))
+def git_repo_exists(directory):
+    return os.path.exists(os.path.join(directory, ".git")) and \
+           _execute_and_capture_output(eos.tools.command_git() + " -C " + directory + " rev-parse --git-dir") == 0
 
 
 def hg_clone(url, directory):
