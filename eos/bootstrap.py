@@ -3,6 +3,7 @@ import shutil
 import eos.archive
 import eos.cache
 import eos.log
+import eos.post
 import eos.repo
 import eos.util
 
@@ -13,6 +14,8 @@ def bootstrap_library(json_obj, name, library_dir):
     # create directory for library
     if not os.path.exists(library_dir):
         os.mkdir(library_dir)
+
+    # get library
 
     src = json_obj.get('source', None)
     if not src:
@@ -45,8 +48,6 @@ def bootstrap_library(json_obj, name, library_dir):
         if not eos.archive.extract_file(download_filename, library_dir):
             eos.log_error("extraction of file for '" + download_filename + "' failed")
             return False
-
-        return True
     else:
         branch = src.get('branch', None)
         if not branch:
@@ -61,4 +62,35 @@ def bootstrap_library(json_obj, name, library_dir):
             eos.log_error("updating repository state for '" + name + " failed")
             return False
 
-        return True
+    # post-process library
+
+    post = src.get('postprocess', None)
+    if not post:
+        return True  # it's optional
+
+    post_type = post.get('type', None)
+    if not post_type:
+        eos.log_error("postprocessing object for library '" + name + "' must have a 'type'")
+        return False
+
+    post_file = post.get('file', None)
+    if not post_file:
+        eos.log_error("postprocessing object for library '" + name + "' must have a 'file'")
+        return False
+
+    if post_type not in ['patch', 'script']:
+        eos.log_error("unknown postprocessing type for library '" + name + "'")
+        return False
+
+    if post_type == "patch":
+        pnum = post.get('pnum', None)
+        if not eos.post.apply_patch(post_file, name, pnum):
+            eos.log_error("patch application of " + post_file + " failed for library '" + name + "'")
+            return False
+    elif post_type == "script":
+        if not eos.post.run_script(post_file):
+            eos.log_error("script execution of " + post_file + " failed for library '" + name + "'")
+            return False
+
+    return True
+
