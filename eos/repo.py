@@ -1,12 +1,8 @@
 import os
 import shutil
 import eos.log
+import eos.tools
 import eos.util
-
-# TODO: more robust tool detection
-COMMAND_HG = "hg"
-COMMAND_GIT = "git"
-COMMAND_SVN = "svn"
 
 
 def _check_return_code(code):
@@ -38,65 +34,65 @@ def git_repo_exists(dir):
 
 
 def hg_clone(url, directory):
-    return _execute(COMMAND_HG + " clone " + url + " " + directory)
+    return _execute(eos.tools.command_hg() + " clone " + url + " " + directory)
 
 
 def hg_pull(directory):
-    return _execute(COMMAND_HG + " pull -R " + directory)
+    return _execute(eos.tools.command_hg() + " pull -R " + directory)
 
 
 def hg_purge(directory):
-    return _execute(COMMAND_HG + " purge -R " + directory + " --all --config extensions.purge=")
+    return _execute(eos.tools.command_hg() + " purge -R " + directory + " --all --config extensions.purge=")
 
 
 def hg_update_to_revision(directory, revision=None):
     if revision is None:
         revision = ""
-    return _execute(COMMAND_HG + " update -R " + directory + " -C " + revision)
+    return _execute(eos.tools.command_hg() + " update -R " + directory + " -C " + revision)
 
 
 def hg_update_to_branch_tip(directory, branch):
-    return _execute(COMMAND_HG + " update -R " + directory + " -C " + branch)
+    return _execute(eos.tools.command_hg() + " update -R " + directory + " -C " + branch)
 
 # -----
 
 
 def git_clone(url, directory):
-    return _execute(COMMAND_GIT + " clone --recursive " + url + " " + directory)
+    return _execute(eos.tools.command_git() + " clone --recursive " + url + " " + directory)
 
 
 def git_fetch(directory):
-    return _execute(COMMAND_GIT + " -C " + directory + " fetch --recurse-submodules")
+    return _execute(eos.tools.command_git() + " -C " + directory + " fetch --recurse-submodules")
 
 
 def git_pull(directory):
-    return _execute(COMMAND_GIT + " -C " + directory + " pull --recurse-submodules")
+    return _execute(eos.tools.command_git() + " -C " + directory + " pull --recurse-submodules")
 
 
 def git_clean(directory):
-    return _execute(COMMAND_GIT + " -C " + directory + " clean -fxd")
+    return _execute(eos.tools.command_git() + " -C " + directory + " clean -fxd")
 
 
 def git_checkout(directory, branch=None):
     if branch is None:
         branch = ""  # making this effectively a no-op
-    return _execute(COMMAND_GIT + " -C " + directory + " checkout " + branch)
+    return _execute(eos.tools.command_git() + " -C " + directory + " checkout " + branch)
 
 
 def git_submodule_update(directory):
-    return _execute(COMMAND_GIT + " -C " + directory + " submodule update")
+    return _execute(eos.tools.command_git() + " -C " + directory + " submodule update")
 
 
 def git_reset_to_revision(directory, revision=None):
     if revision is None:
         revision = "HEAD"
-    return _execute(COMMAND_GIT + " -C " + directory + " reset --hard " + revision)
+    return _execute(eos.tools.command_git() + " -C " + directory + " reset --hard " + revision)
 
 # -----
 
 
 def svn_checkout(url, directory):
-    return _execute(COMMAND_SVN + " checkout " + url + " " + directory)
+    return _execute(eos.tools.command_svn() + " checkout " + url + " " + directory)
 
 # -----
 

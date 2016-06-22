@@ -8,6 +8,7 @@ import eos.cache
 import eos.cargs
 import eos.json
 import eos.state
+import eos.tools
 
 
 def main(argv):
@@ -16,12 +17,10 @@ def main(argv):
 
     json_filename = cl_args.json_file
     dst_dir = cl_args.destination_dir[0]
-
-    # verbosity = 0
-    # if cl_args.verbose:
-    #     verbosity = 1
-    print("cl_args.verbose = " + str(cl_args.verbose))
     eos.set_verbosity(cl_args.verbose)
+
+    # initialize tool commands
+    eos.tools.initialize_commands()
 
     # compile list of libraries to bootstrap
     try:
@@ -100,8 +99,8 @@ def main(argv):
             # TODO: give better errors
             failed_libraries.append(name)
 
-    eos.log("Bootstrapped " + str(libraries_bootstrapped) + " libraries; " + str(libraries_skipped)
-            + " were already up to date.")
+    eos.log("Bootstrapped " + str(libraries_bootstrapped) + " libraries; " + str(libraries_skipped) +
+            " were already up to date.")
     if failed_libraries:
         eos.log("The following libraries FAILED to bootstrap:")
         eos.log(", ".join(failed_libraries))
