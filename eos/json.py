@@ -32,3 +32,11 @@ def get_library_object(data, name):
         if obj.get('name', None) == name:
             return obj
     return None
+
+
+def has_branch_follow_property(obj):
+    if obj.get('source', None):
+        src = obj['source']
+        if src.get('branch-follow', None):
+            return True
+    return False

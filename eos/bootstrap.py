@@ -7,6 +7,7 @@ import eos.util
 
 def bootstrap_library(json_obj, name, library_dir):
     eos.log_verbose("")
+    eos.log_verbose("")
     eos.log_verbose("BOOTSTRAPPING LIBRARY '" + name + "' TO " + library_dir)
     eos.log_verbose("")
 
@@ -41,9 +42,16 @@ def bootstrap_library(json_obj, name, library_dir):
         eos.log_error("IMPLEMENTATION OF ARCHIVE BOOTSTRAPPING NOT FINISHED YET")
         return False
     else:
+        branch = src.get('branch', None)
+        if not branch:
+            branch = src.get('branch-follow', None)
         revision = src.get('revision', None)
 
-        if not eos.repo.update_state(src_type, src_url, name, library_dir, revision):
+        if branch and revision:
+            eos.log_error("cannot specify both branch (to follow) and revision for repository '" + name + "'")
+            return False
+
+        if not eos.repo.update_state(src_type, src_url, name, library_dir, branch, revision):
             eos.log_error("updating repository state for '" + name + " failed")
             return False
 

@@ -11,7 +11,7 @@
     "name": "eigen",
     "source": {
         "type": "hg",
-        "url": "https://bitbucket.org/eigen/eigen/",
+        "url": "https://bitbucket.org/eigen/eigen",
         "revision": " 206929d"
     }
 },

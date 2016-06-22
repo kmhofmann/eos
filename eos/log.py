@@ -22,8 +22,8 @@ def log_verbose(message):
 
 
 def log_warning(message):
-    print("WARNING: " + message)
+    print("=== WARNING: " + message)
 
 
 def log_error(message):
-    print("ERROR: " + message)
+    print("=== ERROR: " + message)

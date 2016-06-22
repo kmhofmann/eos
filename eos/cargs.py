@@ -10,6 +10,8 @@ def parse():
                            help="specifies name of file containing list of library names to bootstrap")
     cl_parser.add_argument("-a", "--all", action="store_true",
                            help="bootstrap all libraries; overrides --library and --library-file")
+    cl_parser.add_argument("-f", "--force", action="store_true",
+                           help="force updating, i.e. disregard state file")
     cl_parser.add_argument("-j", "--json-file", default="libraries.json",
                            help="specifies JSON file to read library metadata from")
     cl_parser.add_argument("-v", "--verbose", action="store_true", help="verbose output (for debugging)")

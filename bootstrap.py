@@ -57,6 +57,9 @@ def main(argv):
     state_filename = os.path.join(dst_dir, ".state.json")
     json_data_state = eos.json.read_file(state_filename)
 
+    if cl_args.force:
+        json_data_state = []
+
     # bootstrap each library, if needed
     libraries_bootstrapped = 0
     failed_libraries = []
@@ -71,9 +74,10 @@ def main(argv):
         library_dir = os.path.join(dst_dir, name)
 
         # check against state
-        if eos.state.check_equals(json_data_state, name, obj) and os.path.exists(library_dir):
-            eos.log_verbose("Cached state for library '" + name + "' matches; skipping bootstrapping")
-            continue
+        if eos.state.check_equals(json_data_state, name, obj):
+            if (not eos.json.has_branch_follow_property(obj)) and os.path.exists(library_dir):
+                eos.log_verbose("Cached state for library '" + name + "' matches; skipping bootstrapping")
+                continue
 
         # remove cached state for library
         eos.state.remove_library(json_data_state, name)
