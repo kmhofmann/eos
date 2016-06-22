@@ -13,17 +13,17 @@ def is_verbose():
 
 
 def log(message):
-    print("--- " + message)
+    print(message)
 
 
 def log_verbose(message):
     if VERBOSE:
-        print("=== " + message)
+        print("--- " + message)
 
 
 def log_warning(message):
-    print("=== WARNING: " + message)
+    print("--- WARNING: " + message)
 
 
 def log_error(message):
-    print("=== ERROR: " + message)
+    print("--- ERROR: " + message)

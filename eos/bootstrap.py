@@ -1,4 +1,6 @@
 import os
+import shutil
+import eos.archive
 import eos.cache
 import eos.log
 import eos.repo
@@ -6,10 +8,7 @@ import eos.util
 
 
 def bootstrap_library(json_obj, name, library_dir):
-    eos.log_verbose("")
-    eos.log_verbose("")
-    eos.log_verbose("BOOTSTRAPPING LIBRARY '" + name + "' TO " + library_dir)
-    eos.log_verbose("")
+    eos.log("Bootstrapping library '" + name + "' to " + library_dir)
 
     # create directory for library
     if not os.path.exists(library_dir):
@@ -35,13 +34,19 @@ def bootstrap_library(json_obj, name, library_dir):
         sha1_hash = src.get('sha1', None)
         user_agent = src.get('user-agent', None)
 
-        if not eos.util.download_file(src_url, eos.cache.get_archive_dir(), sha1_hash, user_agent):
+        download_filename = eos.util.download_file(src_url, eos.cache.get_archive_dir(), sha1_hash, user_agent)
+        if download_filename == "":
             eos.log_error("downloading of file for '" + name + "' from " + src_url + " failed")
             return False
 
-        # TODO: implement file extraction
-        eos.log_error("IMPLEMENTATION OF ARCHIVE BOOTSTRAPPING NOT FINISHED YET")
-        return False
+        if os.path.exists(library_dir):
+            shutil.rmtree(library_dir)
+
+        if not eos.archive.extract_file(download_filename, library_dir):
+            eos.log_error("extraction of file for '" + download_filename + "' failed")
+            return False
+
+        return True
     else:
         branch = src.get('branch', None)
         if not branch:

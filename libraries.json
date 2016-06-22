@@ -1,5 +1,13 @@
 [
 {
+    "name": "GSL",
+    "source": {
+        "type": "git",
+        "url": "https://github.com/Microsoft/GSL.git",
+        "branch": "master"
+    }
+},
+{
     "name": "catch",
     "source": {
         "type": "git",

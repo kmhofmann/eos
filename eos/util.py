@@ -17,15 +17,22 @@ except ImportError:
 import eos.log
 
 
-def execute_command(command, print_command=False):
+def execute_command(command, print_command=False, quiet=False):
     if print_command:
         eos.log("> " + command)
 
-    return subprocess.call(command, shell=True);
+    out = None
+    err = None
+    if quiet:
+        out = open(os.devnull, 'w')
+        # err = subprocess.STDOUT
+        err = open(os.devnull, 'w')
+
+    return subprocess.call(command, shell=True, stdout=out, stderr=err)
 
 
 # http://stackoverflow.com/questions/22058048/hashing-a-file-in-python
-def compute_sha1_hash(filename):
+def _compute_sha1_hash(filename):
     buf_size = 128 * 1024  # 128 kB chunks
     sha1 = hashlib.sha1()
 
@@ -39,7 +46,7 @@ def compute_sha1_hash(filename):
     return sha1.hexdigest()
 
 
-class MyURLOpener(URLopener):
+class _MyURLOpener(URLopener):
     pass
 
 
@@ -58,27 +65,32 @@ def download_file(url, dst_dir, sha1_hash_expected=None, user_agent=None):
     if os.path.exists(download_filename):
         if not sha1_hash_expected or sha1_hash_expected == "":
             eos.log_verbose("File " + download_filename + " already downloaded")
-            return True  # file exists, but we have no SHA1 hash to check, so just return successfully
+            return download_filename  # file exists, but we have no SHA1 hash to check, so just return successfully
 
-        hash_current = compute_sha1_hash(download_filename)
+        hash_current = _compute_sha1_hash(download_filename)
         if hash_current == sha1_hash_expected:
             eos.log_verbose("File " + download_filename + " already downloaded")
-            return True  # everything matches; return successfully
+            return download_filename  # everything matches; return successfully
         eos.log_warning("hash mismatch: " + hash_current + " (current) vs. " + sha1_hash_expected + " (expected)")
 
     # download file
     eos.log_verbose("Downloading " + url + " to " + download_filename)
-    if user_agent:
-        MyURLOpener.version = user_agent
-        MyURLOpener().retrieve(url, download_filename)
-    else:
-        urlretrieve(url, download_filename)
+
+    try:
+        if user_agent:
+            _MyURLOpener.version = user_agent
+            _MyURLOpener().retrieve(url, download_filename)
+        else:
+            urlretrieve(url, download_filename)
+    except IOError:
+        eos.log_error("retrieving file from " + url + " as '" + download_filename + "' failed")
+        return ""
 
     # check SHA1 hash
     if sha1_hash_expected and sha1_hash_expected != "":
-        hash_current = compute_sha1_hash(download_filename)
+        hash_current = _compute_sha1_hash(download_filename)
         if hash_current != sha1_hash_expected:
             eos.log_error("hash mismatch: " + hash_current + " (current) vs. " + sha1_hash_expected + " (expected)")
-            return False
+            return ""
 
-    return True
+    return download_filename

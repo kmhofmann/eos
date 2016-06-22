@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
 import os
 import sys
 
@@ -28,7 +27,7 @@ def main(argv):
     # read JSON data from file
     json_data = eos.json.read_file(json_filename, require_file=True)
     if not json_data:
-        print("JSON data is empty; exiting.")
+        eos.log("JSON data is empty; exiting.")
         return -1
 
     all_library_names = eos.json.get_library_names(json_data)
@@ -38,7 +37,7 @@ def main(argv):
         requested_library_names = all_library_names
 
     if not requested_library_names:
-        print("No libraries specified to bootstrap; exiting.")
+        eos.log("No libraries specified to bootstrap; exiting.")
         return -1
 
     # create destination directory, if it doesn't exist yet
@@ -62,6 +61,7 @@ def main(argv):
 
     # bootstrap each library, if needed
     libraries_bootstrapped = 0
+    libraries_skipped = 0
     failed_libraries = []
 
     for name in requested_library_names:
@@ -76,6 +76,7 @@ def main(argv):
         # check against state
         if eos.state.check_equals(json_data_state, name, obj):
             if (not eos.json.has_branch_follow_property(obj)) and os.path.exists(library_dir):
+                libraries_skipped += 1
                 eos.log_verbose("Cached state for library '" + name + "' matches; skipping bootstrapping")
                 continue
 
@@ -94,10 +95,11 @@ def main(argv):
             # TODO: give better errors
             failed_libraries.append(name)
 
-    print("Bootstrapped " + str(libraries_bootstrapped) + " libraries")
+    eos.log("Bootstrapped " + str(libraries_bootstrapped) + " libraries; " + str(libraries_skipped)
+            + " were already up to date.")
     if failed_libraries:
-        print("The following libraries FAILED to bootstrap:")
-        print(", ".join(failed_libraries))
+        eos.log("The following libraries FAILED to bootstrap:")
+        eos.log(", ".join(failed_libraries))
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
