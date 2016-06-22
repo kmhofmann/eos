@@ -20,6 +20,11 @@ def _execute(command):
     quiet = eos.verbosity() <= 1
     return eos.util.execute_command(command, print_command, quiet)
 
+
+def _execute_and_capture_output(command):
+    print_command = eos.verbosity() > 0
+    return eos.util.execute_command_capture_output(command, print_command)
+
 # -----
 
 
@@ -54,8 +59,16 @@ def hg_update_to_revision(directory, revision=None):
 def hg_update_to_branch_tip(directory, branch):
     return _execute(eos.tools.command_hg() + " update -R " + directory + " -C " + branch)
 
-# -----
 
+def hg_verify_commit_hash(directory, expected_commit_hash):
+    rcode, out, err = _execute_and_capture_output(eos.tools.command_hg() + " -R " + directory + " --debug id -i")
+    if rcode != 0:
+        return False
+    current_commit_hash = out
+    hash_match = expected_commit_hash in current_commit_hash
+    return hash_match
+
+# -----
 
 def git_clone(url, directory):
     return _execute(eos.tools.command_git() + " clone --recursive " + url + " " + directory)
@@ -88,6 +101,15 @@ def git_reset_to_revision(directory, revision=None):
         revision = "HEAD"
     return _execute(eos.tools.command_git() + " -C " + directory + " reset --hard " + revision)
 
+
+def git_verify_commit_hash(directory, expected_commit_hash):
+    rcode, out, err = _execute_and_capture_output(eos.tools.command_git() + " -C " + directory + " rev-parse HEAD")
+    if rcode != 0:
+        return False
+    current_commit_hash = out
+    hash_match = expected_commit_hash in current_commit_hash
+    return hash_match
+
 # -----
 
 
@@ -118,6 +140,10 @@ def update_state(repo_type, url, name, dst_dir, branch=None, revision=None):
                 _check_return_code(git_pull(dst_dir))
             _check_return_code(git_submodule_update(dst_dir))
 
+            if eos.util.is_sha1(revision) and not git_verify_commit_hash(dst_dir, revision):
+                eos.log_error("SHA1 hash check failed")
+                return False
+
         elif repo_type == "hg":
             if not hg_repo_exists(dst_dir):
                 _remove_directory(dst_dir)
@@ -132,6 +158,10 @@ def update_state(repo_type, url, name, dst_dir, branch=None, revision=None):
                 if not branch or branch == "":
                     branch = "default"
                 _check_return_code(hg_update_to_branch_tip(dst_dir, branch))
+
+            if eos.util.is_sha1(revision) and not hg_verify_commit_hash(dst_dir, revision):
+                eos.log_error("SHA1 hash check failed")
+                return False
 
         elif repo_type == "svn":
             _remove_directory(dst_dir)

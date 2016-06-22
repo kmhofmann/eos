@@ -15,6 +15,7 @@ except ImportError:
     from urllib import quote
 
 import eos.log
+import shlex
 
 
 def execute_command(command, print_command=False, quiet=False):
@@ -25,10 +26,23 @@ def execute_command(command, print_command=False, quiet=False):
     err = None
     if quiet:
         out = open(os.devnull, 'w')
-        # err = subprocess.STDOUT
         err = open(os.devnull, 'w')
 
     return subprocess.call(command, shell=True, stdout=out, stderr=err)
+
+
+def execute_command_capture_output(command, print_command=False):
+    # https://pythonadventures.wordpress.com/2014/01/08/capture-the-exit-code-the-stdout-and-the-stderr-of-an-external-command/
+    if print_command:
+        eos.log("> " + command)
+
+    args = shlex.split(command)
+
+    proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = proc.communicate()
+    exit_code = proc.returncode
+
+    return exit_code, out, err
 
 
 # http://stackoverflow.com/questions/22058048/hashing-a-file-in-python
@@ -44,6 +58,17 @@ def _compute_sha1_hash(filename):
             sha1.update(data)
 
     return sha1.hexdigest()
+
+
+# http://stackoverflow.com/a/32234251
+def is_sha1(maybe_sha):
+    if len(maybe_sha) != 40:
+        return False
+    try:
+        sha_int = int(maybe_sha, 16)
+    except ValueError:
+        return False
+    return True
 
 
 class _MyURLOpener(URLopener):
