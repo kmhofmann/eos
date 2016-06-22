@@ -14,7 +14,8 @@ def parse():
                            help="force updating, i.e. disregard state file")
     cl_parser.add_argument("-j", "--json-file", default="libraries.json",
                            help="specifies JSON file to read library metadata from")
-    cl_parser.add_argument("-v", "--verbose", action="store_true", help="verbose output (for debugging)")
+    cl_parser.add_argument("-v", "--verbose", action="count",
+                           help="verbose output (for debugging), increases with the number of -v arguments")
     cl_parser.add_argument("destination_dir", nargs=1)
     return cl_parser.parse_args()
 

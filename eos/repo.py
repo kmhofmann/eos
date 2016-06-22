@@ -20,7 +20,9 @@ def _remove_directory(directory):
 
 
 def _execute(command):
-    return eos.util.execute_command(command, eos.is_verbose(), not eos.is_verbose())
+    print_command = eos.verbosity() > 0
+    quiet = eos.verbosity() <= 1
+    return eos.util.execute_command(command, print_command, quiet)
 
 # -----
 

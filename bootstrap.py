@@ -16,7 +16,12 @@ def main(argv):
 
     json_filename = cl_args.json_file
     dst_dir = cl_args.destination_dir[0]
-    eos.set_verbose(cl_args.verbose)
+
+    # verbosity = 0
+    # if cl_args.verbose:
+    #     verbosity = 1
+    print("cl_args.verbose = " + str(cl_args.verbose))
+    eos.set_verbosity(cl_args.verbose)
 
     # compile list of libraries to bootstrap
     try:

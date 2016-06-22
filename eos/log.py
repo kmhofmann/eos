@@ -1,23 +1,23 @@
 from __future__ import print_function
 
-VERBOSE = False
+VERBOSITY = 0
 
 
-def set_verbose(verbose):
-    global VERBOSE
-    VERBOSE = verbose
+def set_verbosity(verbosity):
+    global VERBOSITY
+    VERBOSITY = verbosity
 
 
-def is_verbose():
-    return VERBOSE
+def verbosity():
+    return VERBOSITY
 
 
 def log(message):
     print(message)
 
 
-def log_verbose(message):
-    if VERBOSE:
+def log_verbose(message, level=1):
+    if VERBOSITY >= level:
         print("--- " + message)
 
 
