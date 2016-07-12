@@ -107,6 +107,9 @@ def main(argv):
     if failed_libraries:
         eos.log("The following libraries FAILED to bootstrap:")
         eos.log(", ".join(failed_libraries))
+        return -1
+
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
