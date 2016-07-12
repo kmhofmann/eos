@@ -12,8 +12,11 @@ def parse():
                            help="bootstrap all libraries; overrides --library and --library-file")
     cl_parser.add_argument("-f", "--force", action="store_true",
                            help="force updating, i.e. disregard state file")
-    cl_parser.add_argument("-j", "--json-file", default="libraries.json",
+    cl_parser.add_argument("-j", "--json-file", default="test/libraries.json",
                            help="specifies JSON file to read library metadata from")
+    cl_parser.add_argument("-p", "--postprocessing-dir",
+                           help="specifies the directory that postprocessing files (patches and scripts) are in; "
+                                "the default is to be assumed relative to the location of the JSON file")
     cl_parser.add_argument("-v", "--verbose", action="count",
                            help="verbose output (for debugging), increases with the number of -v arguments")
     cl_parser.add_argument("destination_dir", nargs=1)

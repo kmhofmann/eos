@@ -17,6 +17,9 @@ def main(argv):
 
     json_filename = cl_args.json_file
     dst_dir = cl_args.destination_dir[0]
+    postprocessing_dir = cl_args.postprocessing_dir
+    if not postprocessing_dir:
+        postprocessing_dir = os.path.dirname(os.path.abspath(json_filename))
     eos.set_verbosity(cl_args.verbose)
 
     # initialize tool commands
@@ -87,7 +90,7 @@ def main(argv):
         # remove cached state for library
         eos.state.remove_library(json_data_state, name)
 
-        if eos.bootstrap_library(obj, name, library_dir):
+        if eos.bootstrap_library(obj, name, library_dir, postprocessing_dir):
             libraries_bootstrapped += 1
 
             # add cached state again

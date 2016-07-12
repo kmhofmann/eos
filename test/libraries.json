@@ -20,8 +20,12 @@
     "source": {
         "type": "hg",
         "url": "https://bitbucket.org/eigen/eigen",
-        "revision": " 206929d"
-    }
+        "revision": "786384d"
+    },
+	"postprocess": {
+		"type": "patch",
+		"file": "eigen.patch"
+	}
 },
 {
     "name": "zlib",
