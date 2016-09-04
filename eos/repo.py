@@ -122,11 +122,14 @@ def svn_checkout(url, directory):
 
 def update_state_git(url, dst_dir, branch=None, revision=None):
     if not git_repo_exists(dst_dir):
+        if url is None:
+            return False
         _remove_directory(dst_dir)
         _check_return_code(git_clone(url, dst_dir))
     else:
         _check_return_code(git_clean(dst_dir))
-        _check_return_code(git_fetch(dst_dir))
+        if url is not None:
+            _check_return_code(git_fetch(dst_dir))
 
     if revision and revision != "":
         _check_return_code(git_reset_to_revision(dst_dir, revision))
@@ -134,7 +137,8 @@ def update_state_git(url, dst_dir, branch=None, revision=None):
         if not branch or branch == "":
             branch = "master"
         _check_return_code(git_checkout(dst_dir, branch))
-        _check_return_code(git_pull(dst_dir))
+        if url is not None:
+            _check_return_code(git_pull(dst_dir))
     _check_return_code(git_submodule_update(dst_dir))
 
     if eos.util.is_sha1(revision) and not git_verify_commit_hash(dst_dir, revision):
@@ -145,11 +149,14 @@ def update_state_git(url, dst_dir, branch=None, revision=None):
 
 def update_state_hg(url, dst_dir, branch=None, revision=None):
     if not hg_repo_exists(dst_dir):
+        if url is None:
+            return False
         _remove_directory(dst_dir)
         _check_return_code(hg_clone(url, dst_dir))
     else:
         _check_return_code(hg_purge(dst_dir))
-        _check_return_code(hg_pull(dst_dir))
+        if url is not None:
+            _check_return_code(hg_pull(dst_dir))
 
     if revision and revision != "":
         _check_return_code(hg_update_to_revision(dst_dir, revision))
@@ -179,17 +186,18 @@ def update_state(repo_type, url, name, dst_dir, branch=None, revision=None):
 
     try:
         if repo_type == "git":
-            update_state_git(url, dst_dir, branch=branch, revision=revision)
-
+            success = update_state_git(url, dst_dir, branch=branch, revision=revision)
         elif repo_type == "hg":
-            update_state_hg(url, dst_dir, branch=branch, revision=revision)
-
+            success = update_state_hg(url, dst_dir, branch=branch, revision=revision)
         elif repo_type == "svn":
-            update_state_svn(url, dst_dir, revision=revision)
+            if url is None:
+                eos.log_error("cannot execute local operations on SVN repository")
+                return False
+            success = update_state_svn(url, dst_dir, revision=revision)
         else:
             eos.log_error("unknown repository type '" + repo_type + "'")
             return False
     except RuntimeError:
         return False
 
-    return True
+    return success

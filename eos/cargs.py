@@ -17,6 +17,8 @@ def parse():
     cl_parser.add_argument("-p", "--postprocessing-dir",
                            help="specifies the directory that postprocessing files (patches and scripts) are in; "
                                 "the default is to be assumed relative to the location of the JSON file")
+    cl_parser.add_argument("-s", "--create-snapshots", action="store_true",
+                           help="activates snapshot creation of repositories on change; to be used on fallback servers")
     cl_parser.add_argument("-v", "--verbose", action="count",
                            help="verbose output (for debugging), increases with the number of -v arguments")
     cl_parser.add_argument("destination_dir", nargs=1)

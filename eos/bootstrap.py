@@ -2,6 +2,7 @@ import os
 import shutil
 import eos.archive
 import eos.cache
+import eos.constants
 import eos.fallback
 import eos.log
 import eos.post
@@ -9,7 +10,8 @@ import eos.repo
 import eos.util
 
 
-def bootstrap_library(json_obj, name, library_dir, postprocessing_dir, snapshot_dir=None, fallback_server_url=None):
+def bootstrap_library(json_obj, name, library_dir, postprocessing_dir, create_snapshots=False,
+                      fallback_server_url=None):
     eos.log("Bootstrapping library '" + name + "' to " + library_dir)
 
     # create directory for library
@@ -34,38 +36,34 @@ def bootstrap_library(json_obj, name, library_dir, postprocessing_dir, snapshot_
         eos.log_warning("unknown source type for library '" + name)
         return False
 
-    def get_archive_from_fallback(url):
+    def get_from_fallback(filename, download_dir):
         if fallback_server_url is None:
             return False
-        eos.log("trying download from fallback URL %s..." % fallback_server_url)
-        filename = eos.util.get_filename_from_url(eos.util.sanitize_url(url))
-        fallback_success = eos.fallback.download_and_extract_archive_from_fallback_url(
-            fallback_server_url, filename, eos.cache.get_archive_dir(), sha1_hash)
+        eos.log("downloading repository from fallback URL %s..." % fallback_server_url)
+        fallback_success = eos.fallback.download_and_extract_from_fallback_url(fallback_server_url, filename,
+                                                                               download_dir, library_dir)
+        if not fallback_success:
+            eos.log_error("download from fallback URL failed")
         return fallback_success
-
-    def get_repository_from_fallback():
-        if fallback_server_url is None:
-            return False
-        eos.log("trying download from fallback URL %s..." % fallback_server_url)
-        # TODO: IMPLEMENT
-        return False
 
     if src_type == "archive":
         # We're dealing with an archive file
         sha1_hash = src.get('sha1', None)
         user_agent = src.get('user-agent', None)
 
+        # download archive file
         download_filename = eos.util.download_file(src_url, eos.cache.get_archive_dir(), sha1_hash, user_agent)
         if download_filename == "":
             eos.log_error("downloading of file for '" + name + "' from " + src_url + " failed")
-            return get_archive_from_fallback(src_url)
+            return get_from_fallback(os.path.basename(download_filename), eos.cache.get_archive_dir())
 
         if os.path.exists(library_dir):
             shutil.rmtree(library_dir)
 
+        # extract archive file
         if not eos.archive.extract_file(download_filename, library_dir):
             eos.log_error("extraction of file for '" + download_filename + "' failed")
-            return get_archive_from_fallback(src_url)
+            return get_from_fallback(os.path.basename(download_filename), eos.cache.get_archive_dir())
     else:
         # We're dealing with a repository
         branch = src.get('branch', None)
@@ -77,18 +75,27 @@ def bootstrap_library(json_obj, name, library_dir, postprocessing_dir, snapshot_
             eos.log_error("cannot specify both branch (to follow) and revision for repository '" + name + "'")
             return False
 
+        snapshot_archive_name = name + ".tar.gz"  # filename for reading/writing snapshots
+        if revision is not None:
+            snapshot_archive_name = name + "_" + revision + ".tar.gz"  # add the revision number, if present
+
+        # clone or update repository
         if not eos.repo.update_state(src_type, src_url, name, library_dir, branch, revision):
             eos.log_error("updating repository state for '" + name + " failed")
-            get_repository_from_fallback()  # TODO: IMPLEMENT
-            return
+            fallback_success = get_from_fallback(snapshot_archive_name, eos.cache.get_snapshot_dir())
+            if not fallback_success:
+                return False
+            fallback_success = eos.repo.update_state(src_type, None, name, library_dir, branch, revision)
+            if not fallback_success:
+                eos.log_error("updating state from downloaded repository from fallback URL failed")
+                return False
 
-        if snapshot_dir is not None:
+        # optionally create snapshot
+        if create_snapshots:
             eos.log("Creating snapshot of '" + name + "' repository...")
-            archive_name = name + ".tar.gz"  # for reading or writing of snapshot archives
-            if revision is not None:
-                archive_name = name + "_" + revision + ".tar.gz"
-            archive_filename = os.path.join(snapshot_dir, archive_name)
-            eos.archive.create_archive_from_directory(library_dir, archive_filename, revision is None)
+            snapshots_dir = os.path.join(eos.constants.CACHE_DIR_REL, eos.constants.SNAPSHOT_SUBDIR_REL)
+            snapshot_archive_filename = os.path.join(snapshots_dir, snapshot_archive_name)
+            eos.archive.create_archive_from_directory(library_dir, snapshot_archive_filename, revision is None)
 
     # post-process library
 

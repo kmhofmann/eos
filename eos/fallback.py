@@ -18,13 +18,9 @@ import eos.constants
 import eos.util
 
 
-def download_and_extract_archive_from_fallback_url(fallback_url, archive_filename, dst_dir, sha1_hash_expected=None):
-    # # get the filename from the URL
-    # filename = eos.util.get_filename_from_url(eos.util.sanitize_url(url))
-
-    archive_dir = os.path.join(eos.constants.CACHE_DIR_REL, eos.constants.ARCHIVES_SUBDIR_REL)
+def download_and_extract_from_fallback_url(fallback_url, archive_filename, download_dir, extract_dir, sha1_hash_expected=None):
     p = urlparse(fallback_url)
-    new_path = p[2] + "/" + archive_dir + "/" + archive_filename
+    new_path = p[2] + "/" + eos.cache.get_archive_dir() + "/" + archive_filename
     fallback_download_url = urlunparse([p[0], p[1], new_path, p[3], p[4], p[5]])
 
     download_filename = eos.util.download_file(fallback_download_url, eos.cache.get_archive_dir(),
@@ -33,9 +29,23 @@ def download_and_extract_archive_from_fallback_url(fallback_url, archive_filenam
         eos.log_error("downloading of file from fallback URL " + fallback_download_url + " failed")
         return False
 
-    if not eos.archive.extract_file(download_filename, dst_dir):
+    if not eos.archive.extract_file(download_filename, extract_dir):
         eos.log_error("extraction of file " + download_filename + " from fallback URL " + fallback_download_url
                       + " failed")
         return False
 
     return True
+
+
+
+# # copy archived snapshot from fallback location
+# p = urlparse(FALLBACK_URL)
+# fallback_src_url = urlunparse(
+#     [p[0], p[1], p[2] + "/" + SNAPSHOT_DIR_BASE + "/" + archive_name, p[3], p[4], p[5]])
+# dlog("Looking for snapshot " + fallback_src_url + " of library repository " + name)
+#
+# # create snapshots files directory
+# downloadAndExtractFile(fallback_src_url, SNAPSHOT_DIR, name, force_download=True)
+#
+# # reset repository state to particular revision (only using local operations inside the function)
+# cloneRepository(src_type, src_url, name, revision, True)

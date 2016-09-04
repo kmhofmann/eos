@@ -21,7 +21,7 @@ def main(argv):
     postprocessing_dir = cl_args.postprocessing_dir
     if not postprocessing_dir:
         postprocessing_dir = os.path.dirname(os.path.abspath(json_filename))
-    snapshot_dir = None  # TODO: expose as option (should be None, if no snapshots required)
+    create_snapshots = cl_args.create_snapshots
     fallback_server_url = None  # TODO: expose as option (should be None, if no fallback URL specified)
 
     eos.set_verbosity(0 if cl_args.verbose is None else cl_args.verbose)
@@ -95,7 +95,7 @@ def main(argv):
         # remove cached state for library
         eos.state.remove_library(json_data_state, name)
 
-        if eos.bootstrap_library(obj, name, library_dir, postprocessing_dir, snapshot_dir, fallback_server_url):
+        if eos.bootstrap_library(obj, name, library_dir, postprocessing_dir, create_snapshots, fallback_server_url):
             libraries_bootstrapped += 1
 
             # add cached state again
