@@ -20,6 +20,8 @@ def main(argv):
     postprocessing_dir = cl_args.postprocessing_dir
     if not postprocessing_dir:
         postprocessing_dir = os.path.dirname(os.path.abspath(json_filename))
+    snapshot_dir = None  # TODO: expose as option (should be None, if no snapshots required)
+
     eos.set_verbosity(0 if cl_args.verbose is None else cl_args.verbose)
 
     # initialize tool commands
@@ -63,6 +65,7 @@ def main(argv):
     state_filename = os.path.join(dst_dir, ".state.json")
     json_data_state = eos.json.read_file(state_filename)
 
+    # the '--force' option cleans the cached state, such that bootstrapping will commence for each library
     if cl_args.force:
         json_data_state = []
 
@@ -90,7 +93,7 @@ def main(argv):
         # remove cached state for library
         eos.state.remove_library(json_data_state, name)
 
-        if eos.bootstrap_library(obj, name, library_dir, postprocessing_dir):
+        if eos.bootstrap_library(obj, name, library_dir, postprocessing_dir, snapshot_dir):
             libraries_bootstrapped += 1
 
             # add cached state again

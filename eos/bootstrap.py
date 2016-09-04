@@ -8,7 +8,7 @@ import eos.repo
 import eos.util
 
 
-def bootstrap_library(json_obj, name, library_dir, postprocessing_dir):
+def bootstrap_library(json_obj, name, library_dir, postprocessing_dir, snapshot_dir):
     eos.log("Bootstrapping library '" + name + "' to " + library_dir)
 
     # create directory for library
@@ -34,6 +34,7 @@ def bootstrap_library(json_obj, name, library_dir, postprocessing_dir):
         return False
 
     if src_type == "archive":
+        # We're dealing with an archive file
         sha1_hash = src.get('sha1', None)
         user_agent = src.get('user-agent', None)
 
@@ -49,6 +50,7 @@ def bootstrap_library(json_obj, name, library_dir, postprocessing_dir):
             eos.log_error("extraction of file for '" + download_filename + "' failed")
             return False
     else:
+        # We're dealing with a repository
         branch = src.get('branch', None)
         if not branch:
             branch = src.get('branch-follow', None)
@@ -60,7 +62,15 @@ def bootstrap_library(json_obj, name, library_dir, postprocessing_dir):
 
         if not eos.repo.update_state(src_type, src_url, name, library_dir, branch, revision):
             eos.log_error("updating repository state for '" + name + " failed")
-            return False
+            return
+
+        if snapshot_dir:
+            eos.log("Creating snapshot of '" + name + "' repository...")
+            archive_name = name + ".tar.gz"  # for reading or writing of snapshot archives
+            if revision is not None:
+                archive_name = name + "_" + revision + ".tar.gz"
+            archive_filename = os.path.join(snapshot_dir, archive_name)
+            eos.archive.create_archive_from_directory(library_dir, archive_filename, revision is None)
 
     # post-process library
 
