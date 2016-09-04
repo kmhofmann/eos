@@ -10,6 +10,7 @@ try:
 except ImportError:
     lzma_available = False
 
+
 def _get_cache_extract_dir(namelist, stem):
     cache_dir = eos.cache.get_cache_dir()
 
@@ -73,10 +74,10 @@ def extract_file(filename, dst_dir):
             eos.log_error("file '" + filename + "' is not expected zip file")
             return False
 
-        file = zipfile.ZipFile(filename)
-        extraction_dir, extracted_dir = _get_cache_extract_dir(file.namelist(), stem)
-        file.extractall(extraction_dir)
-        file.close()
+        zfile = zipfile.ZipFile(filename)
+        extraction_dir, extracted_dir = _get_cache_extract_dir(zfile.namelist(), stem)
+        zfile.extractall(extraction_dir)
+        zfile.close()
 
     elif extension == ".tar" or extension == ".gz" or extension == ".bz2" or extension == ".xz":
         # special case .tar.xz format: uncompress to .tar file first
@@ -90,15 +91,14 @@ def extract_file(filename, dst_dir):
                 return False
             filename = tar_filename
 
-
         if not tarfile.is_tarfile(filename):
             eos.log_error("file '" + filename + "' is not expected tar file")
             return False
 
-        file = tarfile.open(filename)
-        extraction_dir, extracted_dir = _get_cache_extract_dir(file.getnames(), stem)
-        file.extractall(extraction_dir)
-        file.close()
+        tfile = tarfile.open(filename)
+        extraction_dir, extracted_dir = _get_cache_extract_dir(tfile.getnames(), stem)
+        tfile.extractall(extraction_dir)
+        tfile.close()
 
     else:
         eos.log_error("unknown archive format '" + extension + "'")
@@ -112,3 +112,16 @@ def extract_file(filename, dst_dir):
         return False
 
     return True
+
+
+def create_archive_from_directory(src_dir_name, archive_name, delete_existing_archive=False):
+    if delete_existing_archive and os.path.exists(archive_name):
+        eos.log_verbose("Removing snapshot file " + archive_name + " before creating new one")
+        os.remove(archive_name)
+
+    archive_dir = os.path.dirname(archive_name)
+    if not os.path.isdir(archive_dir):
+        os.mkdir(archive_dir)
+
+    with tarfile.open(archive_name, "w:gz") as tar:
+        tar.add(src_dir_name, arcname=os.path.basename(src_dir_name))
