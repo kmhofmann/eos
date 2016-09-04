@@ -77,15 +77,26 @@ class _MyURLOpener(URLopener):
     pass
 
 
+def sanitize_url(url):
+    p = urlparse(url)
+    url = urlunparse([p[0], p[1], quote(p[2]), p[3], p[4], p[5]])  # quote special characters in the path
+    return url
+
+
+def get_filename_from_url(url):
+    # get 6-tuple for URL: scheme, netloc, path, params, query, fragment
+    p = urlparse(url)
+    # get the download filename
+    url_filename = os.path.split(p.path)[1]  # get the last element of the path, i.e. the filename
+    return url_filename
+
+
 def download_file(url, dst_dir, sha1_hash_expected=None, user_agent=None):
     assert(os.path.isdir(dst_dir))
 
-    # sanitize the URL before calling urlretrieve() below
-    p = urlparse(url)
-    url = urlunparse([p[0], p[1], quote(p[2]), p[3], p[4], p[5]])  # quote special characters in the path
-
-    # get the download filename
-    url_filename = os.path.split(p.path)[1]  # get the last element of the path, i.e. the filename
+    # get the filename from the URL
+    url_filename = get_filename_from_url(sanitize_url(url))
+    # specify the download filename
     download_filename = os.path.join(dst_dir, url_filename)
 
     # in case file already exists, try to check hash
