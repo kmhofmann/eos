@@ -70,6 +70,7 @@ def hg_verify_commit_hash(directory, expected_commit_hash):
 
 # -----
 
+
 def git_clone(url, directory):
     return _execute(eos.tools.command_git() + " clone --recursive " + url + " " + directory)
 
@@ -127,9 +128,9 @@ def update_state(repo_type, url, name, dst_dir, branch=None, revision=None):
             if not git_repo_exists(dst_dir):
                 _remove_directory(dst_dir)
                 _check_return_code(git_clone(url, dst_dir))
-
-            _check_return_code(git_clean(dst_dir))
-            _check_return_code(git_fetch(dst_dir))
+            else:
+                _check_return_code(git_clean(dst_dir))
+                _check_return_code(git_fetch(dst_dir))
 
             if revision and revision != "":
                 _check_return_code(git_reset_to_revision(dst_dir, revision))
@@ -148,9 +149,9 @@ def update_state(repo_type, url, name, dst_dir, branch=None, revision=None):
             if not hg_repo_exists(dst_dir):
                 _remove_directory(dst_dir)
                 _check_return_code(hg_clone(url, dst_dir))
-
-            _check_return_code(hg_purge(dst_dir))
-            _check_return_code(hg_pull(dst_dir))
+            else:
+                _check_return_code(hg_purge(dst_dir))
+                _check_return_code(hg_pull(dst_dir))
 
             if revision and revision != "":
                 _check_return_code(hg_update_to_revision(dst_dir, revision))
