@@ -9,7 +9,7 @@ import eos.repo
 import eos.util
 
 
-def bootstrap_library(json_obj, name, library_dir, postprocessing_dir, snapshot_dir, fallback_server_url):
+def bootstrap_library(json_obj, name, library_dir, postprocessing_dir, snapshot_dir=None, fallback_server_url=None):
     eos.log("Bootstrapping library '" + name + "' to " + library_dir)
 
     # create directory for library
@@ -82,7 +82,7 @@ def bootstrap_library(json_obj, name, library_dir, postprocessing_dir, snapshot_
             get_repository_from_fallback()  # TODO: IMPLEMENT
             return
 
-        if snapshot_dir:
+        if snapshot_dir is not None:
             eos.log("Creating snapshot of '" + name + "' repository...")
             archive_name = name + ".tar.gz"  # for reading or writing of snapshot archives
             if revision is not None:
