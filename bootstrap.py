@@ -6,6 +6,7 @@ import sys
 import eos
 import eos.cache
 import eos.cargs
+import eos.constants
 import eos.json
 import eos.state
 import eos.tools
@@ -58,11 +59,11 @@ def main(argv):
         return -1
 
     # initialize cache directory
-    cache_dir = os.path.join(dst_dir, ".cache")
+    cache_dir = os.path.join(dst_dir, eos.constants.CACHE_DIR_REL)
     eos.cache.init_cache_dir(cache_dir)
 
     # read cached state (if present)
-    state_filename = os.path.join(dst_dir, ".state.json")
+    state_filename = os.path.join(dst_dir, eos.constants.STATE_FILENAME)
     json_data_state = eos.json.read_file(state_filename)
 
     # the '--force' option cleans the cached state, such that bootstrapping will commence for each library
