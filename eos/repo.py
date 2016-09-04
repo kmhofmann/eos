@@ -120,58 +120,72 @@ def svn_checkout(url, directory):
 # -----
 
 
+def update_state_git(url, dst_dir, branch=None, revision=None):
+    if not git_repo_exists(dst_dir):
+        _remove_directory(dst_dir)
+        _check_return_code(git_clone(url, dst_dir))
+    else:
+        _check_return_code(git_clean(dst_dir))
+        _check_return_code(git_fetch(dst_dir))
+
+    if revision and revision != "":
+        _check_return_code(git_reset_to_revision(dst_dir, revision))
+    else:
+        if not branch or branch == "":
+            branch = "master"
+        _check_return_code(git_checkout(dst_dir, branch))
+        _check_return_code(git_pull(dst_dir))
+    _check_return_code(git_submodule_update(dst_dir))
+
+    if eos.util.is_sha1(revision) and not git_verify_commit_hash(dst_dir, revision):
+        eos.log_error("SHA1 hash check failed")
+        return False
+    return True
+
+
+def update_state_hg(url, dst_dir, branch=None, revision=None):
+    if not hg_repo_exists(dst_dir):
+        _remove_directory(dst_dir)
+        _check_return_code(hg_clone(url, dst_dir))
+    else:
+        _check_return_code(hg_purge(dst_dir))
+        _check_return_code(hg_pull(dst_dir))
+
+    if revision and revision != "":
+        _check_return_code(hg_update_to_revision(dst_dir, revision))
+    else:
+        if not branch or branch == "":
+            branch = "default"
+        _check_return_code(hg_update_to_branch_tip(dst_dir, branch))
+
+    if eos.util.is_sha1(revision) and not hg_verify_commit_hash(dst_dir, revision):
+        eos.log_error("SHA1 hash check failed")
+        return False
+    return True
+
+
+def update_state_svn(url, dst_dir, revision=None):
+    _remove_directory(dst_dir)
+    _check_return_code(svn_checkout(url, dst_dir))
+
+    if revision and revision != "":
+        eos.log_error("cannot update SVN repository to revision")
+        return False
+    return True
+
+
 def update_state(repo_type, url, name, dst_dir, branch=None, revision=None):
     eos.log_verbose("Updating repository for '" + name + "' (url = " + url + ", target_dir = " + dst_dir + ")")
 
     try:
         if repo_type == "git":
-            if not git_repo_exists(dst_dir):
-                _remove_directory(dst_dir)
-                _check_return_code(git_clone(url, dst_dir))
-            else:
-                _check_return_code(git_clean(dst_dir))
-                _check_return_code(git_fetch(dst_dir))
-
-            if revision and revision != "":
-                _check_return_code(git_reset_to_revision(dst_dir, revision))
-            else:
-                if not branch or branch == "":
-                    branch = "master"
-                _check_return_code(git_checkout(dst_dir, branch))
-                _check_return_code(git_pull(dst_dir))
-            _check_return_code(git_submodule_update(dst_dir))
-
-            if eos.util.is_sha1(revision) and not git_verify_commit_hash(dst_dir, revision):
-                eos.log_error("SHA1 hash check failed")
-                return False
+            update_state_git(url, dst_dir, branch=branch, revision=revision)
 
         elif repo_type == "hg":
-            if not hg_repo_exists(dst_dir):
-                _remove_directory(dst_dir)
-                _check_return_code(hg_clone(url, dst_dir))
-            else:
-                _check_return_code(hg_purge(dst_dir))
-                _check_return_code(hg_pull(dst_dir))
-
-            if revision and revision != "":
-                _check_return_code(hg_update_to_revision(dst_dir, revision))
-            else:
-                if not branch or branch == "":
-                    branch = "default"
-                _check_return_code(hg_update_to_branch_tip(dst_dir, branch))
-
-            if eos.util.is_sha1(revision) and not hg_verify_commit_hash(dst_dir, revision):
-                eos.log_error("SHA1 hash check failed")
-                return False
+            update_state_hg(url, dst_dir, branch=branch, revision=revision)
 
         elif repo_type == "svn":
-            _remove_directory(dst_dir)
-            _check_return_code(svn_checkout(url, dst_dir))
-
-            if revision and revision != "":
-                eos.log_error("cannot update SVN repository to revision")
-                return False
-
+            update_state_svn(url, dst_dir, revision=revision)
         else:
             eos.log_error("unknown repository type '" + repo_type + "'")
             return False
