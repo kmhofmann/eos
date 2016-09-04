@@ -93,8 +93,8 @@ def bootstrap_library(json_obj, name, library_dir, postprocessing_dir, create_sn
         # optionally create snapshot
         if create_snapshots:
             eos.log("Creating snapshot of '" + name + "' repository...")
-            snapshots_dir = os.path.join(eos.constants.CACHE_DIR_REL, eos.constants.SNAPSHOT_SUBDIR_REL)
-            snapshot_archive_filename = os.path.join(snapshots_dir, snapshot_archive_name)
+            snapshot_archive_filename = os.path.join(eos.cache.get_snapshot_dir(), snapshot_archive_name)
+            eos.log_verbose("Snapshot will be written to " + snapshot_archive_filename)
             eos.archive.create_archive_from_directory(library_dir, snapshot_archive_filename, revision is None)
 
     # post-process library
