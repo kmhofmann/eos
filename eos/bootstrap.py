@@ -93,6 +93,8 @@ def bootstrap_library(json_obj, name, library_dir, postprocessing_dir):
             eos.log_error("patch application of " + post_file + " failed for library '" + name + "'")
             return False
     elif post_type == "script":
+        # Replace variable strings with contents
+        post_file = post_file.replace("$LIBRARY_DIR", os.path.abspath(library_dir))
         # Try to run script
         if not eos.post.run_script(name, post_file):
             eos.log_error("script execution of " + post_file + " failed for library '" + name + "'")
