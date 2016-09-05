@@ -18,12 +18,13 @@ import eos.constants
 import eos.util
 
 
-def download_and_extract_from_fallback_url(fallback_url, archive_filename, download_dir, extract_dir, sha1_hash_expected=None):
+def download_and_extract_from_fallback_url(fallback_url, filename, relative_src_dir, download_dir, extract_dir,
+                                           sha1_hash_expected=None):
     p = urlparse(fallback_url)
-    new_path = p[2] + "/" + eos.cache.get_archive_dir() + "/" + archive_filename
+    new_path = p[2] + "/" + eos.cache.get_relative_snapshot_dir() + "/" + filename
     fallback_download_url = urlunparse([p[0], p[1], new_path, p[3], p[4], p[5]])
 
-    download_filename = eos.util.download_file(fallback_download_url, eos.cache.get_archive_dir(),
+    download_filename = eos.util.download_file(fallback_download_url, download_dir,
                                                sha1_hash_expected=sha1_hash_expected)
     if download_filename == "":
         eos.log_error("downloading of file from fallback URL " + fallback_download_url + " failed")

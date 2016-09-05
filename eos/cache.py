@@ -36,3 +36,11 @@ def get_archive_dir():
 
 def get_snapshot_dir():
     return SNAPSHOT_DIR
+
+
+def get_relative_archive_dir():
+    return os.path.join(eos.constants.CACHE_DIR_REL, eos.constants.ARCHIVE_SUBDIR_REL)
+
+
+def get_relative_snapshot_dir():
+    return os.path.join(eos.constants.CACHE_DIR_REL, eos.constants.SNAPSHOT_SUBDIR_REL)

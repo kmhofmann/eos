@@ -19,6 +19,12 @@ def parse():
                                 "the default is to be assumed relative to the location of the JSON file")
     cl_parser.add_argument("-s", "--create-snapshots", action="store_true",
                            help="activates snapshot creation of repositories on change; to be used on fallback servers")
+    cl_parser.add_argument("--fallback-url",
+                           help="specifies a fallback URL to use in case a repository or archive cannot be reached "
+                           "or downloaded; needs to be the URL to another bootstrapping directory to which snapshots "
+                           "were written")
+    cl_parser.add_argument("--force-fallback", action="store_true",
+                           help="enforces use of the fallback server under the specified URL")
     cl_parser.add_argument("-v", "--verbose", action="count",
                            help="verbose output (for debugging), increases with the number of -v arguments")
     cl_parser.add_argument("destination_dir", nargs=1)
