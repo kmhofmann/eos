@@ -82,18 +82,19 @@ def bootstrap_library(json_obj, name, library_dir, postprocessing_dir):
         eos.log_error("unknown postprocessing type for library '" + name + "'")
         return False
 
+    # If we have a postprocessing directory specified, make it an absolute path
+    if postprocessing_dir:
+        post_file = os.path.join(postprocessing_dir, post_file)
+
     if post_type == "patch":
         pnum = post.get('pnum', 2)
-        # If we have a postprocessing directory specified, make it an absolute path
-        if postprocessing_dir:
-            post_file = os.path.join(postprocessing_dir, post_file)
         # Try to apply patch
         if not eos.post.apply_patch(name, library_dir, post_file, pnum):
             eos.log_error("patch application of " + post_file + " failed for library '" + name + "'")
             return False
     elif post_type == "script":
         # Try to run script
-        if not eos.post.run_script(post_file):
+        if not eos.post.run_script(name, post_file):
             eos.log_error("script execution of " + post_file + " failed for library '" + name + "'")
             return False
 
