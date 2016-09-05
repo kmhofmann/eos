@@ -20,7 +20,7 @@
     "source": {
         "type": "hg",
         "url": "https://bitbucket.org/eigen/eigen",
-        "revision": "786384d"
+        "revision": "4ab5cd1"
     },
 	"postprocess": {
 		"type": "patch",
@@ -33,6 +33,30 @@
         "type": "archive",
         "url": "http://zlib.net/zlib-1.2.8.tar.gz",
         "sha1": "a4d316c404ff54ca545ea71a27af7dbc29817088"
+    }
+},
+{
+    "name": "libjpeg",
+    "source": {
+        "type": "archive",
+        "url": "http://www.ijg.org/files/jpegsrc.v9b.tar.gz",
+        "sha1": "15dd867617a88abd07573e06a86ace9bdb998ac2"
+    },
+    "postprocess": {
+        "type": "script",
+        "file": "libjpeg.py $LIBRARY_DIR"
+    }
+},
+{
+    "name": "libpng",
+    "source": {
+        "type": "archive",
+        "url": "http://downloads.sourceforge.net/libpng/libpng-1.6.25.tar.gz",
+        "sha1": "441436fdc50d7ac13048ccdc98a13d467d1fb697"
+    },
+    "postprocess": {
+        "type": "script",
+        "file": "libpng.py $LIBRARY_DIR"
     }
 }
 ]
