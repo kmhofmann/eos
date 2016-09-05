@@ -80,8 +80,8 @@ def is_sha1(maybe_sha):
     return True
 
 
-class _MyURLOpener(URLopener):
-    pass
+def convert_to_forward_slashes(path):
+    return path.replace('\\', '/')
 
 
 def sanitize_url(url):
@@ -96,6 +96,10 @@ def get_filename_from_url(url):
     # get the download filename
     url_filename = os.path.split(p.path)[1]  # get the last element of the path, i.e. the filename
     return url_filename
+
+
+class _MyURLOpener(URLopener):
+    pass
 
 
 def download_scp(hostname, username, path, target_filename):
