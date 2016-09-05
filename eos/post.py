@@ -1,3 +1,5 @@
+import os
+
 import eos.log
 import eos.tools
 import eos.util
@@ -33,10 +35,13 @@ def apply_patch(library_name, library_dir, patch_file, pnum):
     return status == 0
 
 
-def run_script(library_name, script_file):
-    eos.log_verbose("Running Python script " + script_file + " as post-processing for library '"
+def run_script(library_name, script_command):
+    eos.log_verbose("Running script '" + script_command + "' as post-processing for library '"
                     + library_name + "'...")
-    cmd = eos.tools.command_python() + " " + script_file
+    _, ext = os.path.splitext(script_command.split(' ')[0])
+    cmd = script_command
+    if ext == '.py':
+        cmd = eos.tools.command_python() + " " + script_command
     print_cmd = eos.verbosity() > 0
     status = eos.util.execute_command(cmd, print_command=print_cmd)
     return status == 0
