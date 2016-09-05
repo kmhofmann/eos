@@ -35,17 +35,3 @@ def download_and_extract_from_fallback_url(fallback_url, archive_filename, downl
         return False
 
     return True
-
-
-
-# # copy archived snapshot from fallback location
-# p = urlparse(FALLBACK_URL)
-# fallback_src_url = urlunparse(
-#     [p[0], p[1], p[2] + "/" + SNAPSHOT_DIR_BASE + "/" + archive_name, p[3], p[4], p[5]])
-# dlog("Looking for snapshot " + fallback_src_url + " of library repository " + name)
-#
-# # create snapshots files directory
-# downloadAndExtractFile(fallback_src_url, SNAPSHOT_DIR, name, force_download=True)
-#
-# # reset repository state to particular revision (only using local operations inside the function)
-# cloneRepository(src_type, src_url, name, revision, True)
