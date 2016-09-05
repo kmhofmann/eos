@@ -5,8 +5,7 @@ VERBOSITY = 0
 
 def set_verbosity(verbosity):
     global VERBOSITY
-    VERBOSITY = verbosity
-
+    VERBOSITY = 0 if verbosity == None else verbosity
 
 def verbosity():
     global VERBOSITY
