@@ -35,7 +35,7 @@ def hg_repo_exists(directory):
 
 def git_repo_exists(directory):
     return os.path.exists(os.path.join(directory, ".git")) and \
-           _execute_and_capture_output(eos.tools.command_git() + " -C " + directory + " rev-parse --git-dir") == 0
+           _execute_and_capture_output(eos.tools.command_git() + " -C " + directory + " rev-parse --git-dir")[0] == 0
 
 
 def hg_clone(url, directory):
@@ -182,7 +182,8 @@ def update_state_svn(url, dst_dir, revision=None):
 
 
 def update_state(repo_type, url, name, dst_dir, branch=None, revision=None):
-    eos.log_verbose("Updating repository for '" + name + "' (url = " + url + ", target_dir = " + dst_dir + ")")
+    eos.log_verbose("Updating repository for '" + name + "' (url = "
+                    + url if url is not None else "" + ", target_dir = " + dst_dir + ")")
 
     try:
         if repo_type == "git":

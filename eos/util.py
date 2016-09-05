@@ -103,6 +103,7 @@ def download_scp(hostname, username, path, target_filename):
         eos.log_error("cannot download via SSH; missing Python packages {paramiko, scp}")
         raise IOError
     ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.load_system_host_keys()
     ssh.connect(hostname=hostname, username=username)
     scp_client = scp.SCPClient(ssh.get_transport())
@@ -111,7 +112,7 @@ def download_scp(hostname, username, path, target_filename):
     scp_client.get(path, local_path=target_dir)
 
     # rename to target filename, if applicable
-    downloaded_filename = os.path.join(target_filename, os.path.split(path)[1])
+    downloaded_filename = os.path.join(target_dir, os.path.split(path)[1])
     if target_filename != downloaded_filename:
         os.rename(downloaded_filename, target_filename)
 

@@ -39,7 +39,7 @@ def bootstrap_library(json_obj, name, library_dir, postprocessing_dir, create_sn
     def get_from_fallback(filename, relative_src_dir, download_dir):
         if fallback_server_url is None:
             return False
-        eos.log("downloading repository from fallback URL %s..." % fallback_server_url)
+        eos.log("Downloading from fallback URL %s" % fallback_server_url)
         fallback_success = eos.fallback.download_and_extract_from_fallback_url(fallback_server_url, filename,
                                                                                relative_src_dir=relative_src_dir,
                                                                                download_dir=download_dir,
