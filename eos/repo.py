@@ -16,13 +16,13 @@ def _remove_directory(directory):
 
 
 def _execute(command):
-    print_command = eos.verbosity() > 0
-    quiet = eos.verbosity() <= 1
+    print_command = eos.verbosity() > 1
+    quiet = eos.verbosity() <= 2
     return eos.util.execute_command(command, print_command, quiet)
 
 
 def _execute_and_capture_output(command):
-    print_command = eos.verbosity() > 0
+    print_command = eos.verbosity() > 1
     return eos.util.execute_command_capture_output(command, print_command)
 
 # -----
@@ -183,7 +183,7 @@ def update_state_svn(url, dst_dir, revision=None):
 
 def update_state(repo_type, url, name, dst_dir, branch=None, revision=None):
     eos.log_verbose("Updating repository for '" + name + "' (url = "
-                    + url if url is not None else "" + ", target_dir = " + dst_dir + ")")
+                    + (url if url is not None else "") + ", target_dir = " + dst_dir + ")")
 
     try:
         if repo_type == "git":

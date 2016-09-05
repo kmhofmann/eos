@@ -14,7 +14,7 @@ def apply_patch(library_name, library_dir, patch_file, pnum):
     arguments = "-d " + library_dir + " -p" + str(pnum) + " < " + patch_file
     arguments_binary = "-d " + library_dir + " -p" + str(pnum) + " --binary < " + patch_file
 
-    print_cmd = eos.verbosity() > 0
+    print_cmd = eos.verbosity() > 1
 
     status = eos.util.execute_command(eos.tools.command_patch() + " --dry-run " + arguments,
                                       print_command=print_cmd, quiet=True)
@@ -42,6 +42,6 @@ def run_script(library_name, script_command):
     cmd = script_command
     if ext == '.py':
         cmd = eos.tools.command_python() + " " + script_command
-    print_cmd = eos.verbosity() > 0
+    print_cmd = eos.verbosity() > 1
     status = eos.util.execute_command(cmd, print_command=print_cmd)
     return status == 0
