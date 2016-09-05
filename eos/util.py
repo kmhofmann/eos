@@ -1,5 +1,6 @@
 import hashlib
 import os
+import shlex
 import subprocess
 try:
     from urllib.request import urlparse
@@ -13,9 +14,15 @@ except ImportError:
     from urllib import urlretrieve
     from urllib import URLopener
     from urllib import quote
+try:
+    import paramiko
+    import scp
+    scp_available = True
+except ImportError:
+    scp_available = False
 
 import eos.log
-import shlex
+
 
 
 def execute_command(command, print_command=False, quiet=False):
@@ -91,11 +98,31 @@ def get_filename_from_url(url):
     return url_filename
 
 
+def download_scp(hostname, username, path, target_filename):
+    if not scp_available:
+        eos.log_error("cannot download via SSH; missing Python packages {paramiko, scp}")
+        raise IOError
+    ssh = paramiko.SSHClient()
+    ssh.load_system_host_keys()
+    ssh.connect(hostname=hostname, username=username)
+    scp_client = scp.SCPClient(ssh.get_transport())
+
+    target_dir = os.path.dirname(target_filename)
+    scp_client.get(path, local_path=target_dir)
+
+    # rename to target filename, if applicable
+    downloaded_filename = os.path.join(target_filename, os.path.split(path)[1])
+    if target_filename != downloaded_filename:
+        os.rename(downloaded_filename, target_filename)
+
+
 def download_file(url, dst_dir, sha1_hash_expected=None, user_agent=None):
     assert(os.path.isdir(dst_dir))
 
     # get the filename from the URL
-    url_filename = get_filename_from_url(sanitize_url(url))
+    url = sanitize_url(url)
+    p = urlparse(url)
+    url_filename = get_filename_from_url(url)
     # specify the download filename
     download_filename = os.path.join(dst_dir, url_filename)
 
@@ -115,11 +142,14 @@ def download_file(url, dst_dir, sha1_hash_expected=None, user_agent=None):
     eos.log_verbose("Downloading " + url + " to " + download_filename)
 
     try:
-        if user_agent:
-            _MyURLOpener.version = user_agent
-            _MyURLOpener().retrieve(url, download_filename)
+        if p.scheme == 'ssh':
+            download_scp(p.hostname, p.username, p.path, download_filename)
         else:
-            urlretrieve(url, download_filename)
+            if user_agent:
+                _MyURLOpener.version = user_agent
+                _MyURLOpener().retrieve(url, download_filename)
+            else:
+                urlretrieve(url, download_filename)
     except IOError:
         eos.log_error("retrieving file from " + url + " as '" + download_filename + "' failed")
         return ""
