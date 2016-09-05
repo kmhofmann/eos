@@ -64,41 +64,43 @@ def bootstrap_library(json_obj, name, library_dir, postprocessing_dir):
 
     # post-process library
 
-    post = json_obj.get('postprocess', None)
-    if not post:
-        return True  # it's optional
+    postprocess_keys = sorted([key for key in json_obj if key.startswith('postprocess')])
 
-    post_type = post.get('type', None)
-    if not post_type:
-        eos.log_error("postprocessing object for library '" + name + "' must have a 'type'")
-        return False
+    for postprocess_key in postprocess_keys:
+        post = json_obj.get(postprocess_key, None)
+        eos.log_verbose("Post-processing step '%s'" % postprocess_key)
 
-    post_file = post.get('file', None)
-    if not post_file:
-        eos.log_error("postprocessing object for library '" + name + "' must have a 'file'")
-        return False
-
-    if post_type not in ['patch', 'script']:
-        eos.log_error("unknown postprocessing type for library '" + name + "'")
-        return False
-
-    # If we have a postprocessing directory specified, make it an absolute path
-    if postprocessing_dir:
-        post_file = os.path.join(postprocessing_dir, post_file)
-
-    if post_type == "patch":
-        pnum = post.get('pnum', 2)
-        # Try to apply patch
-        if not eos.post.apply_patch(name, library_dir, post_file, pnum):
-            eos.log_error("patch application of " + post_file + " failed for library '" + name + "'")
+        post_type = post.get('type', None)
+        if not post_type:
+            eos.log_error("postprocessing object for library '" + name + "' must have a 'type'")
             return False
-    elif post_type == "script":
-        # Replace variable strings with contents
-        post_file = post_file.replace("$LIBRARY_DIR", os.path.abspath(library_dir))
-        # Try to run script
-        if not eos.post.run_script(name, post_file):
-            eos.log_error("script execution of " + post_file + " failed for library '" + name + "'")
+
+        post_file = post.get('file', None)
+        if not post_file:
+            eos.log_error("postprocessing object for library '" + name + "' must have a 'file'")
             return False
+
+        if post_type not in ['patch', 'script']:
+            eos.log_error("unknown postprocessing type for library '" + name + "'")
+            return False
+
+        # If we have a postprocessing directory specified, make it an absolute path
+        if postprocessing_dir:
+            post_file = os.path.join(postprocessing_dir, post_file)
+
+        if post_type == "patch":
+            pnum = post.get('pnum', 2)
+            # Try to apply patch
+            if not eos.post.apply_patch(name, library_dir, post_file, pnum):
+                eos.log_error("patch application of " + post_file + " failed for library '" + name + "'")
+                return False
+        elif post_type == "script":
+            # Replace variable strings with contents
+            post_file = post_file.replace("$LIBRARY_DIR", os.path.abspath(library_dir))
+            # Try to run script
+            if not eos.post.run_script(name, post_file):
+                eos.log_error("script execution of " + post_file + " failed for library '" + name + "'")
+                return False
 
     return True
 
