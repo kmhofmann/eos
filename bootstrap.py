@@ -20,7 +20,7 @@ def main(argv):
     postprocessing_dir = cl_args.postprocessing_dir
     if not postprocessing_dir:
         postprocessing_dir = os.path.dirname(os.path.abspath(json_filename))
-    eos.set_verbosity(cl_args.verbose)
+    eos.set_verbosity(0 if cl_args.verbose is None else cl_args.verbose)
 
     # initialize tool commands
     eos.tools.initialize_commands()

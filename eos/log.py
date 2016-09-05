@@ -9,6 +9,7 @@ def set_verbosity(verbosity):
 
 
 def verbosity():
+    global VERBOSITY
     return VERBOSITY
 
 
@@ -17,6 +18,7 @@ def log(message):
 
 
 def log_verbose(message, level=1):
+    global VERBOSITY
     if VERBOSITY >= level:
         print("--- " + message)
 
