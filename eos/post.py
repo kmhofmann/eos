@@ -22,7 +22,7 @@ def apply_patch(library_name, library_dir, patch_file, pnum):
     if status != 0:
         # try again in binary mode
         arguments = arguments_binary
-        res = eos.util.execute_command(eos.tools.command_patch() + " --dry-run " + arguments,
+        status = eos.util.execute_command(eos.tools.command_patch() + " --dry-run " + arguments,
                                        print_command=print_cmd, quiet=True)
 
     if status != 0:
