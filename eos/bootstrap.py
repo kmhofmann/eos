@@ -33,7 +33,7 @@ def bootstrap_library(json_obj, name, library_dir, postprocessing_dir, create_sn
         return False
 
     if src_type not in ['archive', 'git', 'hg', 'svn']:
-        eos.log_warning("unknown source type for library '" + name)
+        eos.log_warning("unknown source type for library '" + name + "'")
         return False
 
     def get_from_fallback(filename, relative_src_dir, download_dir):
