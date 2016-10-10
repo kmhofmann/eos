@@ -30,16 +30,20 @@ def get_cache_dir():
     return CACHE_DIR
 
 
-def get_archive_dir():
-    return ARCHIVE_DIR
+def get_archive_dir(library_name=None):
+    if library_name is None:
+        return ARCHIVE_DIR
+    return os.path.join(ARCHIVE_DIR, library_name)
 
 
 def get_snapshot_dir():
     return SNAPSHOT_DIR
 
 
-def get_relative_archive_dir():
-    return os.path.join(eos.constants.CACHE_DIR_REL, eos.constants.ARCHIVE_SUBDIR_REL)
+def get_relative_archive_dir(library_name=None):
+    if library_name is None:
+        return os.path.join(eos.constants.CACHE_DIR_REL, eos.constants.ARCHIVE_SUBDIR_REL)
+    return os.path.join(eos.constants.CACHE_DIR_REL, eos.constants.ARCHIVE_SUBDIR_REL, library_name)
 
 
 def get_relative_snapshot_dir():

@@ -122,7 +122,8 @@ def download_scp(hostname, username, path, target_filename):
 
 
 def download_file(url, dst_dir, sha1_hash_expected=None, user_agent=None):
-    assert(os.path.isdir(dst_dir))
+    if not os.path.isdir(dst_dir):
+        os.makedirs(dst_dir)
 
     # get the filename from the URL
     url = sanitize_url(url)

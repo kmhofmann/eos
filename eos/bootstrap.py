@@ -36,7 +36,7 @@ def bootstrap_library(json_obj, name, library_dir, postprocessing_dir, create_sn
         eos.log_warning("unknown source type for library '" + name + "'")
         return False
 
-    def get_from_fallback(filename, relative_src_dir, download_dir, extract_file):
+    def get_from_fallback(filename, relative_src_dir, download_dir, extract_file=True):
         if fallback_server_url is None:
             return False
         eos.log("Downloading from fallback URL %s" % fallback_server_url)
@@ -56,14 +56,16 @@ def bootstrap_library(json_obj, name, library_dir, postprocessing_dir, create_sn
 
         if force_fallback:
             return get_from_fallback(eos.util.get_filename_from_url(eos.util.sanitize_url(src_url)),
-                                     eos.cache.get_relative_archive_dir(), eos.cache.get_archive_dir(), False)
+                                     eos.cache.get_relative_archive_dir(name), eos.cache.get_archive_dir(name),
+                                     extract_file=False)
 
-        # download archive file
-        download_filename = eos.util.download_file(src_url, eos.cache.get_archive_dir(), sha1_hash, user_agent)
+        # download file
+        download_filename = eos.util.download_file(src_url, eos.cache.get_archive_dir(name), sha1_hash, user_agent)
         if download_filename == "":
             eos.log_error("downloading of file for '" + name + "' from " + src_url + " failed")
             return get_from_fallback(os.path.basename(download_filename),
-                                     eos.cache.get_relative_archive_dir(), eos.cache.get_archive_dir())
+                                     eos.cache.get_relative_archive_dir(name), eos.cache.get_archive_dir(name),
+                                     extract_file=False)
 
         if os.path.exists(library_dir):
             shutil.rmtree(library_dir)
@@ -86,14 +88,14 @@ def bootstrap_library(json_obj, name, library_dir, postprocessing_dir, create_sn
 
         if force_fallback:
             return get_from_fallback(eos.util.get_filename_from_url(eos.util.sanitize_url(src_url)),
-                                     eos.cache.get_relative_archive_dir(), eos.cache.get_archive_dir(), True)
+                                     eos.cache.get_relative_archive_dir(name), eos.cache.get_archive_dir(name))
 
         # download archive file
-        download_filename = eos.util.download_file(src_url, eos.cache.get_archive_dir(), sha1_hash, user_agent)
+        download_filename = eos.util.download_file(src_url, eos.cache.get_archive_dir(name), sha1_hash, user_agent)
         if download_filename == "":
             eos.log_error("downloading of file for '" + name + "' from " + src_url + " failed")
             return get_from_fallback(os.path.basename(download_filename),
-                                     eos.cache.get_relative_archive_dir(), eos.cache.get_archive_dir())
+                                     eos.cache.get_relative_archive_dir(name), eos.cache.get_archive_dir(name))
 
         if os.path.exists(library_dir):
             shutil.rmtree(library_dir)
@@ -102,7 +104,7 @@ def bootstrap_library(json_obj, name, library_dir, postprocessing_dir, create_sn
         if not eos.archive.extract_file(download_filename, library_dir):
             eos.log_error("extraction of file for '" + download_filename + "' failed")
             return get_from_fallback(os.path.basename(download_filename),
-                                     eos.cache.get_relative_archive_dir(), eos.cache.get_archive_dir())
+                                     eos.cache.get_relative_archive_dir(name), eos.cache.get_archive_dir(name))
     else:
         # We're dealing with a repository
         branch = src.get('branch', None)
