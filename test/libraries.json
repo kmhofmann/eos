@@ -58,5 +58,13 @@
         "type": "script",
         "file": "libpng.py $LIBRARY_DIR"
     }
+},
+{
+    "name": "jo_mpeg",
+    "source": {
+        "type": "file",
+        "url": "http://www.jonolick.com/uploads/7/9/2/1/7921194/jo_mpeg.cpp",
+        "sha1": "056749321e4c30ce74ab98392b063e3ea4ddcd2f"
+    }
 }
 ]

@@ -32,31 +32,31 @@ def bootstrap_library(json_obj, name, library_dir, postprocessing_dir, create_sn
         eos.log_warning("library '" + name + "' is missing type or URL description")
         return False
 
-    if src_type not in ['archive', 'git', 'hg', 'svn', 'sourcefile']:
+    if src_type not in ['archive', 'git', 'hg', 'svn', 'file']:
         eos.log_warning("unknown source type for library '" + name + "'")
         return False
 
-    def get_from_fallback(filename, relative_src_dir, download_dir):
+    def get_from_fallback(filename, relative_src_dir, download_dir, extract_file):
         if fallback_server_url is None:
             return False
         eos.log("Downloading from fallback URL %s" % fallback_server_url)
         relative_src_dir = eos.util.convert_to_forward_slashes(relative_src_dir)
-        fallback_success = eos.fallback.download_and_extract_from_fallback_url(fallback_server_url, filename,
-                                                                               relative_src_dir=relative_src_dir,
-                                                                               download_dir=download_dir,
-                                                                               extract_dir=library_dir)
-        if not fallback_success:
+        success = eos.fallback.download_from_fallback_url(fallback_server_url, filename,
+                                                          relative_src_dir=relative_src_dir,
+                                                          download_dir=download_dir if extract_file else library_dir,
+                                                          extract_dir=library_dir if extract_file else None)
+        if not success:
             eos.log_error("download from fallback URL failed")
-        return fallback_success
+        return success
 
-    if src_type == "sourcefile":
+    if src_type == "file":
         # We're dealing with a single-file uncompressed library
         sha1_hash = src.get('sha1', None)
         user_agent = src.get('user-agent', None)
 
         if force_fallback:
             return get_from_fallback(eos.util.get_filename_from_url(eos.util.sanitize_url(src_url)),
-                                     eos.cache.get_relative_archive_dir(), eos.cache.get_archive_dir())
+                                     eos.cache.get_relative_archive_dir(), eos.cache.get_archive_dir(), False)
 
         # download archive file
         download_filename = eos.util.download_file(src_url, eos.cache.get_archive_dir(), sha1_hash, user_agent)
@@ -70,14 +70,14 @@ def bootstrap_library(json_obj, name, library_dir, postprocessing_dir, create_sn
 
         # copy file
         try:
-           os.mkdir(library_dir)
-           filename_rel = os.path.basename(download_filename)
-           shutil.copyfile( download_filename, os.path.join(library_dir, filename_rel) )
+            os.mkdir(library_dir)
+            filename_rel = os.path.basename(download_filename)
+            shutil.copyfile(download_filename, os.path.join(library_dir, filename_rel))
         except:
-           eos.log_error("copying of file for '" + download_filename + "' failed")
-           if os.path.exists(library_dir):
-              shutil.rmtree(library_dir)
-           return False
+            eos.log_error("copying of file for '" + download_filename + "' failed")
+            if os.path.exists(library_dir):
+                shutil.rmtree(library_dir)
+            return False
 
     elif src_type == "archive":
         # We're dealing with an archive file
@@ -86,7 +86,7 @@ def bootstrap_library(json_obj, name, library_dir, postprocessing_dir, create_sn
 
         if force_fallback:
             return get_from_fallback(eos.util.get_filename_from_url(eos.util.sanitize_url(src_url)),
-                                     eos.cache.get_relative_archive_dir(), eos.cache.get_archive_dir())
+                                     eos.cache.get_relative_archive_dir(), eos.cache.get_archive_dir(), True)
 
         # download archive file
         download_filename = eos.util.download_file(src_url, eos.cache.get_archive_dir(), sha1_hash, user_agent)
