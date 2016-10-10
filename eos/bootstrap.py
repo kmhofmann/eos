@@ -32,8 +32,8 @@ def bootstrap_library(json_obj, name, library_dir, postprocessing_dir, create_sn
         eos.log_warning("library '" + name + "' is missing type or URL description")
         return False
 
-    if src_type not in ['archive', 'git', 'hg', 'svn']:
-        eos.log_warning("unknown source type for library '" + name)
+    if src_type not in ['archive', 'git', 'hg', 'svn', 'sourcefile']:
+        eos.log_warning("unknown source type for library '" + name + "'")
         return False
 
     def get_from_fallback(filename, relative_src_dir, download_dir):
@@ -49,7 +49,37 @@ def bootstrap_library(json_obj, name, library_dir, postprocessing_dir, create_sn
             eos.log_error("download from fallback URL failed")
         return fallback_success
 
-    if src_type == "archive":
+    if src_type == "sourcefile":
+        # We're dealing with a single-file uncompressed library
+        sha1_hash = src.get('sha1', None)
+        user_agent = src.get('user-agent', None)
+
+        if force_fallback:
+            return get_from_fallback(eos.util.get_filename_from_url(eos.util.sanitize_url(src_url)),
+                                     eos.cache.get_relative_archive_dir(), eos.cache.get_archive_dir())
+
+        # download archive file
+        download_filename = eos.util.download_file(src_url, eos.cache.get_archive_dir(), sha1_hash, user_agent)
+        if download_filename == "":
+            eos.log_error("downloading of file for '" + name + "' from " + src_url + " failed")
+            return get_from_fallback(os.path.basename(download_filename),
+                                     eos.cache.get_relative_archive_dir(), eos.cache.get_archive_dir())
+
+        if os.path.exists(library_dir):
+            shutil.rmtree(library_dir)
+
+        # copy file
+        try:
+           os.mkdir(library_dir)
+           filename_rel = os.path.basename(download_filename)
+           shutil.copyfile( download_filename, os.path.join(library_dir, filename_rel) )
+        except:
+           eos.log_error("copying of file for '" + download_filename + "' failed")
+           if os.path.exists(library_dir):
+              shutil.rmtree(library_dir)
+           return False
+
+    elif src_type == "archive":
         # We're dealing with an archive file
         sha1_hash = src.get('sha1', None)
         user_agent = src.get('user-agent', None)
