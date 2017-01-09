@@ -24,7 +24,6 @@ except ImportError:
 import eos.log
 
 
-
 def execute_command(command, print_command=False, quiet=False):
     if print_command:
         eos.log("> " + command)
@@ -74,7 +73,7 @@ def is_sha1(maybe_sha):
     if len(maybe_sha) != 40:
         return False
     try:
-        sha_int = int(maybe_sha, 16)
+        int(maybe_sha, 16)
     except ValueError:
         return False
     return True

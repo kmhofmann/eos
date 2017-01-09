@@ -1,15 +1,9 @@
 try:
     from urllib.request import urlparse
     from urllib.request import urlunparse
-    from urllib.request import urlretrieve
-    from urllib.request import URLopener
-    from urllib.request import quote
 except ImportError:
     from urlparse import urlparse
     from urlparse import urlunparse
-    from urllib import urlretrieve
-    from urllib import URLopener
-    from urllib import quote
 import os
 import shutil
 

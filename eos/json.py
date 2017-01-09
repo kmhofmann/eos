@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 import json
 
-from eos.log import *
+from eos.log import log_error
 
 
 def read_file(filename, require_file=False):

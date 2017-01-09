@@ -183,4 +183,3 @@ def bootstrap_library(json_obj, name, library_dir, postprocessing_dir, create_sn
                 return False
 
     return True
-
