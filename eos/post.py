@@ -16,31 +16,31 @@ def apply_patch(library_name, library_dir, patch_file, pnum):
 
     print_cmd = eos.verbosity() > 1
 
-    status = eos.util.execute_command(eos.tools.command_patch() + " --dry-run " + arguments,
-                                      print_command=print_cmd, quiet=True)
+    status = eos.util.execute_command(
+        eos.tools.command_patch() + " --dry-run " + arguments, print_command=print_cmd, quiet=True
+    )
 
     if status != 0:
         # try again in binary mode
         arguments = arguments_binary
-        status = eos.util.execute_command(eos.tools.command_patch() + " --dry-run " + arguments,
-                                          print_command=print_cmd, quiet=True)
+        status = eos.util.execute_command(
+            eos.tools.command_patch() + " --dry-run " + arguments, print_command=print_cmd, quiet=True
+        )
 
     if status != 0:
         eos.log_error("patch application failure; has this patch already been applied?")
         eos.util.execute_command(eos.tools.command_patch() + " --dry-run " + arguments, print_command=True)
         return False
 
-    status = eos.util.execute_command(eos.tools.command_patch() + " " + arguments,
-                                      print_command=print_cmd, quiet=True)
+    status = eos.util.execute_command(eos.tools.command_patch() + " " + arguments, print_command=print_cmd, quiet=True)
     return status == 0
 
 
 def run_script(library_name, script_command):
-    eos.log_verbose("Running script '" + script_command + "' as post-processing for library '"
-                    + library_name + "'...")
-    _, ext = os.path.splitext(script_command.split(' ')[0])
+    eos.log_verbose("Running script '" + script_command + "' as post-processing for library '" + library_name + "'...")
+    _, ext = os.path.splitext(script_command.split(" ")[0])
     cmd = script_command
-    if ext == '.py':
+    if ext == ".py":
         cmd = eos.tools.command_python() + " " + script_command
     print_cmd = eos.verbosity() > 1
     status = eos.util.execute_command(cmd, print_command=print_cmd)

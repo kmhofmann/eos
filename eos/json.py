@@ -19,24 +19,24 @@ def read_file(filename, require_file=False):
 
 
 def write_file(filename, data):
-    with open(filename, 'w') as file:
+    with open(filename, "w") as file:
         json.dump(data, file)
 
 
 def get_library_names(data):
-    return [name for name in (obj.get('name', None) for obj in data) if name]
+    return [name for name in (obj.get("name", None) for obj in data) if name]
 
 
 def get_library_object(data, name):
     for obj in data:
-        if obj.get('name', None) == name:
+        if obj.get("name", None) == name:
             return obj
     return None
 
 
 def has_branch_follow_property(obj):
-    if obj.get('source', None):
-        src = obj['source']
-        if src.get('branch-follow', None):
+    if obj.get("source", None):
+        src = obj["source"]
+        if src.get("branch-follow", None):
             return True
     return False

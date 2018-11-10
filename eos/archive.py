@@ -4,8 +4,10 @@ import shutil
 import zipfile
 import eos.cache
 import eos.log
+
 try:
     import lzma
+
     LZMA_AVAILABLE = True
 except ImportError:
     LZMA_AVAILABLE = False

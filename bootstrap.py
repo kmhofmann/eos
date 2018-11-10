@@ -68,7 +68,8 @@ def main(argv):
     state_filename = os.path.join(dst_dir, eos.constants.STATE_FILENAME)
     json_data_state = eos.json.read_file(state_filename)
 
-    # the '--force' option cleans the cached state, such that bootstrapping will commence for each library
+    # the '--force' option cleans the cached state, such that bootstrapping
+    # will commence for each library
     if cl_args.force:
         json_data_state = []
 
@@ -96,8 +97,15 @@ def main(argv):
         # remove cached state for library
         eos.state.remove_library(json_data_state, name)
 
-        if eos.bootstrap_library(obj, name, library_dir, postprocessing_dir, create_snapshots,
-                                 fallback_server_url=fallback_server_url, force_fallback=force_fallback):
+        if eos.bootstrap_library(
+            obj,
+            name,
+            library_dir,
+            postprocessing_dir,
+            create_snapshots,
+            fallback_server_url=fallback_server_url,
+            force_fallback=force_fallback,
+        ):
             libraries_bootstrapped += 1
 
             # add cached state again
@@ -109,8 +117,13 @@ def main(argv):
             # TODO: give better errors
             failed_libraries.append(name)
 
-    eos.log("Bootstrapped " + str(libraries_bootstrapped) + " libraries; " + str(libraries_skipped) +
-            " were already up to date.")
+    eos.log(
+        "Bootstrapped "
+        + str(libraries_bootstrapped)
+        + " libraries; "
+        + str(libraries_skipped)
+        + " were already up to date."
+    )
     if failed_libraries:
         eos.log("The following libraries FAILED to bootstrap:")
         eos.log(", ".join(failed_libraries))

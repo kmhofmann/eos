@@ -3,9 +3,11 @@ import os
 import shlex
 import subprocess
 import urllib.request
+
 try:
     import paramiko
     import scp
+
     SCP_AVAILABLE = True
 except ImportError:
     SCP_AVAILABLE = False
@@ -20,8 +22,8 @@ def execute_command(command, print_command=False, quiet=False):
     out = None
     err = None
     if quiet:
-        out = open(os.devnull, 'w')
-        err = open(os.devnull, 'w')
+        out = open(os.devnull, "w")
+        err = open(os.devnull, "w")
 
     return subprocess.call(command, shell=True, stdout=out, stderr=err)
 
@@ -45,7 +47,7 @@ def _compute_sha1_hash(filename):
     buf_size = 128 * 1024  # 128 kB chunks
     sha1 = hashlib.sha1()
 
-    with open(filename, 'rb') as f:
+    with open(filename, "rb") as f:
         while True:
             data = f.read(buf_size)
             if not data:
@@ -69,12 +71,14 @@ def is_sha1(maybe_sha):
 
 
 def convert_to_forward_slashes(path):
-    return path.replace('\\', '/')
+    return path.replace("\\", "/")
 
 
 def sanitize_url(url):
     p = urllib.request.urlparse(url)
-    url = urllib.request.urlunparse([p[0], p[1], urllib.request.quote(p[2]), p[3], p[4], p[5]])  # quote special characters in the path
+    url = urllib.request.urlunparse(
+        [p[0], p[1], urllib.request.quote(p[2]), p[3], p[4], p[5]]
+    )  # quote special characters in the path
     return url
 
 
@@ -136,7 +140,7 @@ def download_file(url, dst_dir, sha1_hash_expected=None, user_agent=None):
     eos.log_verbose("Downloading " + url + " to " + download_filename)
 
     try:
-        if p.scheme == 'ssh':
+        if p.scheme == "ssh":
             download_scp(p.hostname, p.username, p.path, download_filename)
         else:
             if user_agent:

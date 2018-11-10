@@ -25,6 +25,7 @@ def _execute_and_capture_output(command):
     print_command = eos.verbosity() > 1
     return eos.util.execute_command_capture_output(command, print_command)
 
+
 # -----
 
 
@@ -34,8 +35,10 @@ def hg_repo_exists(directory):
 
 
 def git_repo_exists(directory):
-    return os.path.exists(os.path.join(directory, ".git")) and \
-           _execute_and_capture_output(eos.tools.command_git() + " -C " + directory + " rev-parse --git-dir")[0] == 0
+    return (
+        os.path.exists(os.path.join(directory, ".git"))
+        and _execute_and_capture_output(eos.tools.command_git() + " -C " + directory + " rev-parse --git-dir")[0] == 0
+    )
 
 
 def hg_clone(url, directory):
@@ -67,6 +70,7 @@ def hg_verify_commit_hash(directory, expected_commit_hash):
     current_commit_hash = out
     hash_match = expected_commit_hash in current_commit_hash
     return hash_match
+
 
 # -----
 
@@ -111,11 +115,13 @@ def git_verify_commit_hash(directory, expected_commit_hash):
     hash_match = expected_commit_hash in current_commit_hash
     return hash_match
 
+
 # -----
 
 
 def svn_checkout(url, directory):
     return _execute(eos.tools.command_svn() + " checkout " + url + " " + directory)
+
 
 # -----
 
@@ -182,8 +188,15 @@ def update_state_svn(url, dst_dir, revision=None):
 
 
 def update_state(repo_type, url, name, dst_dir, branch=None, revision=None):
-    eos.log_verbose("Updating repository for '" + name + "' (url = "
-                    + (url if url is not None else "") + ", target_dir = " + dst_dir + ")")
+    eos.log_verbose(
+        "Updating repository for '"
+        + name
+        + "' (url = "
+        + (url if url is not None else "")
+        + ", target_dir = "
+        + dst_dir
+        + ")"
+    )
 
     try:
         if repo_type == "git":
