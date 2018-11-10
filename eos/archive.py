@@ -6,9 +6,9 @@ import eos.cache
 import eos.log
 try:
     import lzma
-    lzma_available = True
+    LZMA_AVAILABLE = True
 except ImportError:
-    lzma_available = False
+    LZMA_AVAILABLE = False
 
 
 def _get_cache_extract_dir(namelist, stem):
@@ -35,7 +35,7 @@ def _get_cache_extract_dir(namelist, stem):
 
 
 def _decompress_tar_xz_file(filename_src, filename_dst):
-    if not lzma_available:
+    if not LZMA_AVAILABLE:
         print("WARNING: Python lzma library not available; extraction of .tar.xz files may not be supported.")
         print("Installation on Ubuntu:")
         print("> apt-get install python-lzma")

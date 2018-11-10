@@ -2,24 +2,13 @@ import hashlib
 import os
 import shlex
 import subprocess
-try:
-    from urllib.request import urlparse
-    from urllib.request import urlunparse
-    from urllib.request import urlretrieve
-    from urllib.request import URLopener
-    from urllib.request import quote
-except ImportError:
-    from urlparse import urlparse
-    from urlparse import urlunparse
-    from urllib import urlretrieve
-    from urllib import URLopener
-    from urllib import quote
+import urllib.request
 try:
     import paramiko
     import scp
-    scp_available = True
+    SCP_AVAILABLE = True
 except ImportError:
-    scp_available = False
+    SCP_AVAILABLE = False
 
 import eos.log
 
@@ -84,25 +73,25 @@ def convert_to_forward_slashes(path):
 
 
 def sanitize_url(url):
-    p = urlparse(url)
-    url = urlunparse([p[0], p[1], quote(p[2]), p[3], p[4], p[5]])  # quote special characters in the path
+    p = urllib.request.urlparse(url)
+    url = urllib.request.urlunparse([p[0], p[1], urllib.request.quote(p[2]), p[3], p[4], p[5]])  # quote special characters in the path
     return url
 
 
 def get_filename_from_url(url):
     # get 6-tuple for URL: scheme, netloc, path, params, query, fragment
-    p = urlparse(url)
+    p = urllib.request.urlparse(url)
     # get the download filename
     url_filename = os.path.split(p.path)[1]  # get the last element of the path, i.e. the filename
     return url_filename
 
 
-class _MyURLOpener(URLopener):
+class _MyURLOpener(urllib.request.URLopener):
     pass
 
 
 def download_scp(hostname, username, path, target_filename):
-    if not scp_available:
+    if not SCP_AVAILABLE:
         eos.log_error("cannot download via SSH; missing Python packages {paramiko, scp}")
         raise IOError
     ssh = paramiko.SSHClient()
@@ -126,7 +115,7 @@ def download_file(url, dst_dir, sha1_hash_expected=None, user_agent=None):
 
     # get the filename from the URL
     url = sanitize_url(url)
-    p = urlparse(url)
+    p = urllib.request.urlparse(url)
     url_filename = get_filename_from_url(url)
     # specify the download filename
     download_filename = os.path.join(dst_dir, url_filename)
@@ -154,7 +143,7 @@ def download_file(url, dst_dir, sha1_hash_expected=None, user_agent=None):
                 _MyURLOpener.version = user_agent
                 _MyURLOpener().retrieve(url, download_filename)
             else:
-                urlretrieve(url, download_filename)
+                urllib.request.urlretrieve(url, download_filename)
     except IOError:
         eos.log_error("retrieving file from " + url + " as '" + download_filename + "' failed")
         return ""
